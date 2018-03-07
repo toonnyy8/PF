@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script src="./include.js"></script>
+    <title>Pixel Fighter</title>
+    <link href=".\Flat-UI-master\dist\css\vendor\bootstrap\css\bootstrap.min.css" rel="stylesheet">
+    <link href=".\Flat-UI-master\dist\css\flat-ui.min.css" rel="stylesheet">
+    <style type="text/css">
+        div.justify {
+            text-align: justify;
+            text-justify: inter-ideograph;
+            -ms-text-justify: inter-ideograph;
+            /*IE9*/
+            -moz-text-align-last: justify;
+            /*Firefox*/
+            text-align-last: justify;
+            /*Chrome*/
+        }
+        
+        div.justify:after {
+            content: '';
+            display: inline-block;
+            width: 100%;
+        }
+        
+        #id_footer {
+            /* 設定footer的高度 */
+            box-sizing: border-box;
+            /* 設定footer絕對位置在底部 */
+            position: absolute;
+            bottom: 0;
+            /* 展開footer寬度 */
+            width: 100%;
+        }
+    </style>
+
+</head>
+
+<body style="background-color:#000000;">
+    <div style="text-align:center;">
+        <a href="./PF.editor.html">
+            <div id="editor" style="background-color:rgb(255, 255, 255);padding:1px;margin-bottom:5px;text-align:center;">
+                <h1 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">
+                    繪圖板
+                </h1>
+            </div>
+        </a>
+        <a href="./PF.choose.action.html">
+            <div id="action" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                <h1 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">
+                    動作編輯器
+                </h1>
+            </div>
+        </a>
+        <a href="./PF.basic.html">
+            <div id="basic" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                <h1 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">
+                    基本編輯
+                </h1>
+            </div>
+        </a>
+        <a href="./PF.fight.html">
+            <div id="fight" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                <h1 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">
+                    對戰
+                </h1>
+            </div>
+        </a>
+        <div class="justify" id="id_footer" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+            <h6 style="color:rgb(255, 255, 255);font-family:Microsoft JhengHei;">
+                &nbsp;Esc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Enter&nbsp;&nbsp;
+            </h6>
+        </div>
+    </div>
+    <script>
+        var select = 0;
+
+        window.onkeydown = function() {
+            if (event.keyCode == 27) {
+                window.location.href = "./start.html";
+            } else if ((event.keyCode == 40 || event.keyCode == 83) && select < 3) {
+                select++;
+            } else if ((event.keyCode == 38 || event.keyCode == 87) && select > 0) {
+                select--;
+            } else if (event.keyCode == 13) {
+                switch (select) {
+                    case 0:
+                        window.location.href = "./PF.editor.html";
+                        break;
+                    case 1:
+                        window.location.href = "./PF.choose.action.html";
+                        break;
+                    case 2:
+                        window.location.href = "./PF.basic.html";
+                        break;
+                    case 3:
+                        window.location.href = "./PF.fight.html";
+                        break;
+                };
+            }
+
+            switch (select) {
+                case 0:
+                    document.getElementById("editor").style = "background-color:rgb(255, 255, 255);padding:1px;margin-bottom:5px;text-align:center;";
+                    document.getElementById("action").style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
+                    document.getElementById("basic").style = "background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;";
+                    document.getElementById("fight").style = "background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;";
+                    break;
+                case 1:
+                    document.getElementById("editor").style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
+                    document.getElementById("action").style = "background-color:rgb(255, 255, 255);padding:1px;margin-bottom:5px;text-align:center;";
+                    document.getElementById("basic").style = "background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;";
+                    document.getElementById("fight").style = "background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;";
+                    break;
+                case 2:
+                    document.getElementById("editor").style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
+                    document.getElementById("action").style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
+                    document.getElementById("basic").style = "background-color:rgb(255, 255, 255);padding:1px;margin-bottom:5px;text-align:center;";
+                    document.getElementById("fight").style = "background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;";
+                    break;
+                case 3:
+                    document.getElementById("editor").style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
+                    document.getElementById("action").style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
+                    document.getElementById("basic").style = "background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;";
+                    document.getElementById("fight").style = "background-color:rgb(255, 255, 255);padding:1px;margin-bottom:5px;text-align:center;";
+                    break;
+            };
+        }
+    </script>
+</body>
+
+</html>

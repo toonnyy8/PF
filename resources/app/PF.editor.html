@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+
+<head>
+    <script src="./include.js"></script>
+    <meta charset="utf-8">
+    <title>Pixel Fighter</title>
+</head>
+
+<body style="background-color:#555555;">
+    <script defer>
+        if (document.body.offsetWidth / 220 < (document.body.scrollHeight - 20) / 121) {
+            screen_scale = document.body.offsetWidth / 220;
+        } else {
+            screen_scale = (document.body.scrollHeight - 20) / 121;
+        }
+        console.log(screen_scale);
+        main.editor.main(screen_scale);
+    </script>
+</body>
+
+
+</html>

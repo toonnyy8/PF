@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Js 页面元素 简单震动效果</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        #box {
+            border: 1px solid #000;
+            width: 300px;
+            height: 200px;
+            cursor: pointer;
+            margin: 200px auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="box"><img src="http://www.baidu.com/img/baidu_sylogo1.gif" width="270" height="129"><br>点我试试</div>
+
+    <script type="text/javascript">
+        document.getElementById("box").onclick = Shake;
+
+        function Shake() {
+            var i = 20,
+                that = this;
+
+            var Timer = setTimeout(active, 15);
+
+            function active() {
+                if (i >= 0) {
+                    that.style.padding = 0;
+                    i % 2 == 0 ? that.style.paddingLeft = i + "px" : that.style.paddingRight = i + "px";
+                    i--;
+                    Timer = setTimeout(active, 15);
+                } else {
+                    clearTimeout(Timer);
+                };
+            };
+
+        }
+    </script>
+</body>
+
+</html>

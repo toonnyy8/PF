@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+
+<head>
+    <script src="include.js"></script>
+    <meta charset="utf-8">
+    <title>Pixel Fighter</title>
+</head>
+
+<body>
+    <h1>迷宮大小:<input type="number" id="width" min="100" value="100">* <input type="number" id="height" min="100" value="100"></h1>
+    <script>
+        var maze = function() {
+            var w = Number(document.getElementById("width").value);
+            var h = Number(document.getElementById("height").value);
+            main(2, w, h);
+        };
+    </script>
+    <button onclick="maze()">送出</button>
+    <hr>
+</body>
+
+</html>

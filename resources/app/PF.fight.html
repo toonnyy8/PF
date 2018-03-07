@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+
+<head>
+    <script async defer src="./include.Fight.js"></script>
+    <link href=".\Flat-UI-master\dist\css\vendor\bootstrap\css\bootstrap.min.css" rel="stylesheet">
+    <link href=".\Flat-UI-master\dist\css\flat-ui.min.css" rel="stylesheet">
+    <meta charset="utf-8">
+    <title>Pixel Fighter</title>
+</head>
+
+<body style="background-color:#000000;" allowFullScreen="allowFullScreen">
+    <!--<script defer>
+        screenset = function(x = 1) {
+            window.onload = function() {
+                window.resizeTo(220 * x + 30, 121 * x + 60);
+            };
+            window.onresize = function() {
+                window.resizeTo(220 * x + 30, 121 * x + 60);
+            };
+        };
+        screenset(screen_scale * 8);
+    </script>-->
+    <script>
+        console.log(document.body.offsetWidth);
+        console.log(document.body.scrollHeight);
+        "use strict";
+        var fs = require("fs");
+        let path = './resources/app/chara/';
+        let chara_ = [];
+        let charas = fs.readdirSync(path);
+        let player1_chara, player2_chara, background_chara;
+        let select = 0;
+        let select_actor = function(n) {
+            select = n;
+            for (let i = 0; i < charas.length; i++) {
+                chara_[i].style = "background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;";
+            }
+            chara_[select].style = "background-color:rgb(255, 255, 255);padding:1px;margin-bottom:5px;text-align:center;";
+            if (player1_chara == null) {
+                player1_chara = charas[select];
+                document.getElementById("player").innerHTML = '<h3 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">P2 : </h3>';
+            } else if (player2_chara == null) {
+                player2_chara = charas[select];
+                document.getElementById("player").innerHTML = '<h3 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">BACKGROUND : </h3>';
+            } else {
+                background_chara = charas[select];
+                document.getElementById("choose").style = "display: none";
+                document.body.style = "background-color:#000000;"
+                if (document.body.offsetWidth / 220 < (document.body.scrollHeight - 10) / 120) {
+                    screen_scale = document.body.offsetWidth / 220;
+                } else {
+                    screen_scale = (document.body.scrollHeight - 10) / 120;
+                }
+                main.fight.main(screen_scale, player1_chara, player2_chara, background_chara);
+            }
+        };
+        document.write("<div id='choose'>");
+        document.write('<div id="player" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;"><h3 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">P1 : </h3></div>');
+        for (let i = 0; i < charas.length; i++) {
+            document.write('<a onclick="select_actor(' + i + ');"><div id=' + i + ' style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;"></div></a>');
+            chara_[i] = document.getElementById(i);
+            chara_[i].innerHTML = '<h3 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">' + charas[i] + '</h3>';
+        };
+        document.write('</div></div>');
+        chara_[0].style = "background-color:rgb(255, 255, 255);padding:1px;margin-bottom:5px;text-align:center;";
+        window.onkeydown = function() {
+            if (event.keyCode == 27) {
+                if (player1_chara == null) {
+                    window.location.href = "./index.html";
+                } else if (player2_chara == null) {
+                    player1_chara = null;
+                    document.getElementById("player").innerHTML = '<h3 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">P1 : </h3>'
+                } else if (background_chara == null) {
+                    player2_chara = null;
+                    document.getElementById("player").innerHTML = '<h3 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">P2 : </h3>'
+                } else {
+                    window.location.href = "./PF.fight.html";
+                };
+            };
+            if ((event.keyCode == 40 || event.keyCode == 83) && select < charas.length - 1) {
+                select++;
+            } else if ((event.keyCode == 38 || event.keyCode == 87) && select > 0) {
+                select--;
+            }
+            if (select >= 0 && select <= charas.length - 1) {
+                chara_[select].style = "background-color:rgb(255, 255, 255);padding:1px;margin-bottom:5px;text-align:center;";
+
+            }
+
+            document.body.scrollTop = (select + 1) * 84; //控制卷軸位置
+            if (select > 0) {
+                chara_[select - 1].style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
+            }
+            if (select < charas.length - 1) {
+                chara_[select + 1].style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
+            }
+
+            if ((player1_chara == null || player2_chara == null || background_chara == null) && event.keyCode == 13) {
+                select_actor(select);
+            }
+        }
+    </script>
+</body>
+
+</html>
