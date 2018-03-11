@@ -8,7 +8,7 @@
 </head>
 
 <body style="background-color:#000000;">
-    <script>
+    <!--<script>
         {
             /*******************************************
                 非同步式wasm調用
@@ -112,7 +112,7 @@
             console.log(WebAssembly_Loader(path + "/C2Wasm/test.wasm")._test());
 
         }
-    </script>
+    </script>-->
     <script>
         keyboardJS.bind("esc", function() {
             window.location.href = "../../start.html";
@@ -127,6 +127,8 @@
         keyboardJS.bind('f12', function() {
             ipcRenderer.send('DevTools');
         });
+    </script>
+    <script>
     </script>
 </body>
 

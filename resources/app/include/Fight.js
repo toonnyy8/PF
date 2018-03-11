@@ -52,7 +52,41 @@ exports.Fight = function(x) {
         this.speed = function() {
             return speed;
         }
-        var jump; //跳躍狀態 0是非跳躍 1是跳躍
+        let Move;
+        let KO_END = new PIXI.Container(); //設置容器
+        let WINner = [];
+        let LOSer = [];
+        let Game_Over = this.Game_Over = function() {
+            if (faceTo == 0) {
+                KO_END.scale.set(1, 1);
+            } else {
+                KO_END.scale.set(-1, 1);
+            }
+            KO_END.x = stand_vector * x;
+
+            Ability_renderer.stage.removeChildren();
+            Ability_renderer.ticker.remove(Move);
+            renderer.stage.removeChild(MODE_stage);
+            renderer.stage.addChild(KO_END);
+            KO_END.visible = true;
+            if (HP[1] > 0) {
+                WINner["pre"].visible = true;
+                WINner["pre"].gotoAndPlay(0);
+                setTimeout(function() {
+                    WINner["pre"].visible = false;
+                    WINner["post"].visible = true;
+                    WINner["post"].gotoAndPlay(0);
+                }, 1000 * (data["win"]["pre"].length - 1) / fps);
+            } else {
+                LOSer["pre"].visible = true;
+                LOSer["pre"].gotoAndPlay(0);
+                setTimeout(function() {
+                    LOSer["pre"].visible = false;
+                    LOSer["post"].visible = true;
+                    LOSer["post"].gotoAndPlay(0);
+                }, 1000 * (data["lose"]["pre"].length - 1) / fps);
+            }
+        }
         this.faceTo = function(TofaceTo) {
             if (combos_status_ck().toString().split("run ").pop() != "null") {
                 if (player_action[combos_status.toString().split("run ").pop()][7] != "null") {
@@ -282,6 +316,44 @@ exports.Fight = function(x) {
                 player_ability[i].visible = false;
 
             };
+            for (let i = 0; i < data["lose"]["pre"].length; i++) {
+                data["lose"]["pre"][i] = Mode[data["lose"]["pre"][i]];
+            }
+            data["lose"]["pre"][data["lose"]["pre"].length] = data["lose"]["pre"][data["lose"]["pre"].length - 1];
+            LOSer["pre"] = new PIXI.extras.AnimatedSprite(data["lose"]["pre"]);
+            LOSer["pre"].animationSpeed = fps / 60;
+            LOSer["pre"].x = -220 * x;
+            KO_END.addChild(LOSer["pre"]);
+            LOSer["pre"].visible = false;
+            for (let i = 0; i < data["lose"]["post"].length; i++) {
+                data["lose"]["post"][i] = Mode[data["lose"]["post"][i]];
+            }
+            data["lose"]["post"][data["lose"]["post"].length] = data["lose"]["post"][data["lose"]["post"].length - 1];
+            LOSer["post"] = new PIXI.extras.AnimatedSprite(data["lose"]["post"]);
+            LOSer["post"].animationSpeed = fps / 60;
+            LOSer["post"].x = -220 * x;
+            KO_END.addChild(LOSer["post"]);
+            LOSer["post"].visible = false;
+            for (let i = 0; i < data["win"]["pre"].length; i++) {
+                data["win"]["pre"][i] = Mode[data["win"]["pre"][i]];
+            }
+            data["win"]["pre"][data["win"]["pre"].length] = data["win"]["pre"][data["win"]["pre"].length - 1];
+            WINner["pre"] = new PIXI.extras.AnimatedSprite(data["win"]["pre"]);
+            WINner["pre"].animationSpeed = fps / 60;
+            WINner["pre"].x = -220 * x;
+            KO_END.addChild(WINner["pre"]);
+            WINner["pre"].visible = false;
+            for (let i = 0; i < data["win"]["post"].length; i++) {
+                data["win"]["post"][i] = Mode[data["win"]["post"][i]];
+            }
+            data["win"]["post"][data["win"]["post"].length] = data["win"]["post"][data["win"]["post"].length - 1];
+            WINner["post"] = new PIXI.extras.AnimatedSprite(data["win"]["post"]);
+            WINner["post"].animationSpeed = fps / 60;
+            WINner["post"].x = -220 * x;
+            KO_END.addChild(WINner["post"]);
+            WINner["post"].visible = false;
+
+
             Mode = null;
             Ability = null;
             MODE_stage.x = stand_vector * x;
@@ -293,12 +365,13 @@ exports.Fight = function(x) {
             let Vittual_event = document.createEvent("KeyboardEvent");
             Vittual_event.initKeyboardEvent("keydown", true, true, document.defaultView);
 
-            renderer.ticker.add(function(delta) {
+            renderer.ticker.add(function() {
                 Ability_renderer.renderer.view.dispatchEvent(Vittual_event);
                 MODE_stage.y = ABILITY_stage.y * x;
                 MODE_stage.x = stand_vector * x;
             });
-            Ability_renderer.ticker.add(function(delta) {
+
+            Ability_renderer.ticker.add(Move = function(delta) {
                 delta = (fps / 60);
                 if (stand_vector < 0) {
                     speed[0] = 0;
@@ -826,7 +899,7 @@ exports.Fight = function(x) {
             /*****************
              * 名字顯示
              *****************/
-            var style = new PIXI.TextStyle({
+            let style = new PIXI.TextStyle({
                 fontFamily: 'Microsoft JhengHei',
                 fontSize: 5 * x,
                 //fontStyle: 'italic',
@@ -1000,96 +1073,76 @@ exports.Fight = function(x) {
                     fighter2_MP[1].width = 0;
                 }
                 /*****************/
-                /*if (fighter1.HP()[1] == 0 && fighter2.HP()[1] == 0) {
-                    var style = new PIXI.TextStyle({
-                        fontFamily: 'Arial',
-                        fontSize: 36,
-                        fontStyle: 'italic',
-                        fontWeight: 'bold',
-                        fill: ['#ffffff', '#00ff99'], // gradient
-                        stroke: '#4a1850',
-                        strokeThickness: 5,
-                        dropShadow: true,
-                        dropShadowColor: '#000000',
-                        dropShadowBlur: 4,
-                        dropShadowAngle: Math.PI / 6,
-                        dropShadowDistance: 6,
-                        wordWrap: true,
-                        wordWrapWidth: 440
-                    });
-
-                    var richText = new PIXI.Text('Draw', style);
-                    richText.x = 110 * x;
-                    richText.y = 60 * x;
-                    richText.anchor.set(0.5);
-
-                    renderer.stage.addChild(richText);
-                    renderer.stop()
-                } else if (fighter1.HP()[1] == 0 && fighter2.HP()[1] != 0) {
-                    var style = new PIXI.TextStyle({
-                        fontFamily: 'Arial',
-                        fontSize: 36,
-                        fontStyle: 'italic',
-                        fontWeight: 'bold',
-                        fill: ['#ffffff', '#00ff99'], // gradient
-                        stroke: '#4a1850',
-                        strokeThickness: 5,
-                        dropShadow: true,
-                        dropShadowColor: '#000000',
-                        dropShadowBlur: 4,
-                        dropShadowAngle: Math.PI / 6,
-                        dropShadowDistance: 6,
-                        wordWrap: true,
-                        wordWrapWidth: 440
-                    });
-
-                    var richText = new PIXI.Text('B win', style);
-                    richText.x = 110 * x;
-                    richText.y = 60 * x;
-                    richText.anchor.set(0.5);
-
-                    renderer.stage.addChild(richText);
-                    renderer.stop()
-                } else if (fighter1.HP()[1] != 0 && fighter2.HP()[1] == 0) {
-                    var style = new PIXI.TextStyle({
-                        fontFamily: 'Arial',
-                        fontSize: 36,
-                        fontStyle: 'italic',
-                        fontWeight: 'bold',
-                        fill: ['#ffffff', '#00ff99'], // gradient
-                        stroke: '#4a1850',
-                        strokeThickness: 5,
-                        dropShadow: true,
-                        dropShadowColor: '#000000',
-                        dropShadowBlur: 4,
-                        dropShadowAngle: Math.PI / 6,
-                        dropShadowDistance: 6,
-                        wordWrap: true,
-                        wordWrapWidth: 440
-                    });
-
-                    var richText = new PIXI.Text('A win', style);
-                    richText.x = 110 * x;
-                    richText.y = 60 * x;
-                    richText.anchor.set(0.5);
-
-                    renderer.stage.addChild(richText);
-                    renderer.stop()
-                }*/
-
             });
-        }
-    }
+
+            let K_O_ = new PIXI.TextStyle({
+                fontFamily: 'Microsoft JhengHei',
+                fontSize: 20 * x,
+                //fontStyle: 'italic',
+                fontWeight: 'bold',
+                fill: ['#ffffff', '#ffffff'], // gradient
+                stroke: false,
+                strokeThickness: 5,
+                dropShadow: true,
+                dropShadowColor: false,
+                //dropShadowBlur: x * 2 / 3,
+                //dropShadowAngle: x / 3,
+                dropShadowDistance: x * 3 / 4,
+                wordWrap: false,
+                wordWrapWidth: 440
+            });
+            let KO__check;
+            renderer.ticker.add(KO__check = async function() {
+                if (fighter1.HP()[1] == 0 && fighter2.HP()[1] == 0) {
+                    var richText = new PIXI.Text('Draw', K_O_);
+                    richText.x = 110 * x;
+                    richText.y = 60 * x;
+                    richText.anchor.set(0.5);
+
+                    renderer.stage.addChild(richText);
+                    fighter1.Game_Over();
+                    fighter2.Game_Over();
+                    renderer.ticker.remove(KO__check);
+                } else if (fighter1.HP()[1] == 0 && fighter2.HP()[1] != 0) {
+                    var richText = new PIXI.Text(fighter2.fighter_name + ' win', K_O_);
+                    richText.x = 110 * x;
+                    richText.y = 60 * x;
+                    richText.anchor.set(0.5);
+
+                    renderer.stage.addChild(richText);
+                    fighter1.Game_Over();
+                    fighter2.Game_Over();
+                    renderer.ticker.remove(KO__check);
+                } else if (fighter1.HP()[1] != 0 && fighter2.HP()[1] == 0) {
+                    var richText = new PIXI.Text(fighter1.fighter_name + ' win', K_O_);
+                    richText.x = 110 * x;
+                    richText.y = 60 * x;
+                    richText.anchor.set(0.5);
+
+                    renderer.stage.addChild(richText);
+                    fighter1.Game_Over();
+                    fighter2.Game_Over();
+                    renderer.ticker.remove(KO__check);
+                }
+            });
+        };
+    };
     let HELPER = this.HELPER = async function(THIS_fighter, THIS_helper, VS_fighter) {
         decide(THIS_helper, VS_fighter, true);
-
         renderer.ticker.add(async function() {
             if (THIS_helper.combos_status(true) == "null") {
                 THIS_helper.stand_vector(THIS_fighter.stand_vector());
             };
             THIS_helper.MP(THIS_fighter.MP());
             THIS_helper.HP(THIS_fighter.HP());
-        })
+        });
+        let HELPER_control;
+        renderer.ticker.add(HELPER_control = async function() {
+            if (THIS_fighter.HP()[1] == 0 || VS_fighter.HP()[1] == 0) {
+                THIS_helper.Game_Over();
+                renderer.ticker.remove(HELPER_control);
+            }
+        });
     }
     let BACKground = this.BACKground = async function(fighter1, fighter2, BACKground_char, fighter1_HELPER, fighter2_HELPER) {
         let BACKground_vector = 110;
