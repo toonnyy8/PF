@@ -4,8 +4,9 @@
     "description": "PF",
     "main": "index.js",
     "scripts": {
-        "build": "electron-packager . --platform=win32 --arch=x64 --electron-version=1.7.11 --overwrite --ignore=node_modules --ignore=.gitignore",
-        "package": "asar pack PF-win32-x64/resources/app PF-win32-x64/resources/app.asar && del PF-win32-x64/resources/app"
+        "build_x64": "electron-packager . --platform=win32 --arch=x64 --electron-version=1.7.11 --overwrite --ignore=node_modules --ignore=.gitignore",
+        "build_ia32": "electron-packager . --platform=win32 --arch=ia32 --electron-version=1.7.11 --overwrite --ignore=node_modules --ignore=.gitignore",
+        "package": "asar pack PF/resources/app PF/resources/app.asar && del PF/resources/app"
     },
     "dependencies": {
         "electron": "^1.8.2",
