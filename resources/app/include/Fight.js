@@ -67,6 +67,7 @@ exports.Fight = function(x) {
             Ability_renderer.stage.removeChildren();
             Ability_renderer.ticker.remove(Move);
             renderer.stage.removeChild(MODE_stage);
+            renderer.stage.removeChild(MODE_stage);
             renderer.stage.addChild(KO_END);
             KO_END.visible = true;
             if (HP[1] > 0) {
@@ -247,19 +248,23 @@ exports.Fight = function(x) {
 
             //**console.log(data["abilityPillar"][i]);
         };
+        let Make_Animation = function(Action_Animation_pic_num, Module, Animation_stage, multiple) {
+            let Action_Animation
+            for (let i = 0; i < Action_Animation_pic_num.length; i++) {
+                Action_Animation_pic_num[i] = Module[Action_Animation_pic_num[i]];
+            }
+            Action_Animation_pic_num[Action_Animation_pic_num.length] = Action_Animation_pic_num[Action_Animation_pic_num.length - 1];
+            Action_Animation = new PIXI.extras.AnimatedSprite(Action_Animation_pic_num);
+            Action_Animation.animationSpeed = fps / 60;
+            Action_Animation.x = -220 * multiple;
+            Animation_stage.addChild(Action_Animation);
+            Action_Animation.visible = false;
+            return Action_Animation;
+        };
         if (Mode[0] != null && Ability[0] != null) {
-
             Saction[0] = data["stand"].split("_");
             Saction[0][0] = Saction[0][0].split(".");
-            for (var i = 0; i < Saction[0][0].length; i++) {
-                Saction[0][0][i] = Mode[Saction[0][0][i]];
-            };
-            Saction_mode = new PIXI.extras.AnimatedSprite(Saction[0][0]);
-            Saction_mode.animationSpeed = fps / 60;
-            Saction_mode.x = -220 * x;
-            MODE_stage.addChild(Saction_mode);
-            Saction_mode.visible = true;
-
+            Saction_mode = Make_Animation(Saction[0][0], Mode, MODE_stage, x);
 
             this.avatar = new PIXI.extras.AnimatedSprite(Saction[0][0]);
             this.avatar.scale.set(1 / 4);
@@ -268,15 +273,7 @@ exports.Fight = function(x) {
             this.avatar.gotoAndPlay(0);
 
             Saction[0][1] = Saction[0][1].split(".");
-            for (var i = 0; i < Saction[0][1].length; i++) {
-                Saction[0][1][i] = Ability[Saction[0][1][i]];
-            };
-            Saction_ability = new PIXI.extras.AnimatedSprite(Saction[0][1]);
-            Saction_ability.scale.set(1);
-            Saction_ability.animationSpeed = fps / 60;
-            Saction_ability.x -= 220;
-            ABILITY_stage.addChild(Saction_ability);
-            Saction_ability.visible = true;
+            Saction_ability = Make_Animation(Saction[0][1], Ability, ABILITY_stage, 1);
 
             for (var i = 0; i < data["action"].length; i++) {
                 player_action[i] = data["action"][i].split("_");
@@ -291,68 +288,17 @@ exports.Fight = function(x) {
                 player_action[i][0] = player_action[i][0].split(".");
                 player_action[i][1] = player_action[i][1].split(".");
                 player_action[i][5] = player_action[i][5].split("."); //移動速度
-                player_action[i][3] = player_action[i][3].split("."); //動作模組
 
-                for (var j = 0; j < player_action[i][3].length; j++) {
-                    player_action[i][3][j] = Mode[player_action[i][3][j]];
-                };
-                player_action[i][3][player_action[i][3].length] = player_action[i][3][player_action[i][3].length - 1];
-                player_mode[i] = new PIXI.extras.AnimatedSprite(player_action[i][3]);
-                player_mode[i].animationSpeed = fps / 60;
-                player_mode[i].x = -220 * x;
-                MODE_stage.addChild(player_mode[i]);
-                player_mode[i].visible = false;
+                player_action[i][3] = player_action[i][3].split("."); //動作模組
+                player_mode[i] = Make_Animation(player_action[i][3], Mode, MODE_stage, x);
 
                 player_action[i][4] = player_action[i][4].split("."); //實際判定圖
-                for (var j = 0; j < player_action[i][4].length; j++) {
-                    player_action[i][4][j] = Ability[player_action[i][4][j]];
-                };
-                player_action[i][4][player_action[i][4].length] = player_action[i][4][player_action[i][4].length - 1];
-                player_ability[i] = new PIXI.extras.AnimatedSprite(player_action[i][4]);
-                player_ability[i].scale.set(1);
-                player_ability[i].animationSpeed = fps / 60;
-                player_ability[i].x = -220;
-                ABILITY_stage.addChild(player_ability[i]);
-                player_ability[i].visible = false;
-
+                player_ability[i] = Make_Animation(player_action[i][4], Ability, ABILITY_stage, 1);
             };
-            for (let i = 0; i < data["lose"]["pre"].length; i++) {
-                data["lose"]["pre"][i] = Mode[data["lose"]["pre"][i]];
-            }
-            data["lose"]["pre"][data["lose"]["pre"].length] = data["lose"]["pre"][data["lose"]["pre"].length - 1];
-            LOSer["pre"] = new PIXI.extras.AnimatedSprite(data["lose"]["pre"]);
-            LOSer["pre"].animationSpeed = fps / 60;
-            LOSer["pre"].x = -220 * x;
-            KO_END.addChild(LOSer["pre"]);
-            LOSer["pre"].visible = false;
-            for (let i = 0; i < data["lose"]["post"].length; i++) {
-                data["lose"]["post"][i] = Mode[data["lose"]["post"][i]];
-            }
-            data["lose"]["post"][data["lose"]["post"].length] = data["lose"]["post"][data["lose"]["post"].length - 1];
-            LOSer["post"] = new PIXI.extras.AnimatedSprite(data["lose"]["post"]);
-            LOSer["post"].animationSpeed = fps / 60;
-            LOSer["post"].x = -220 * x;
-            KO_END.addChild(LOSer["post"]);
-            LOSer["post"].visible = false;
-            for (let i = 0; i < data["win"]["pre"].length; i++) {
-                data["win"]["pre"][i] = Mode[data["win"]["pre"][i]];
-            }
-            data["win"]["pre"][data["win"]["pre"].length] = data["win"]["pre"][data["win"]["pre"].length - 1];
-            WINner["pre"] = new PIXI.extras.AnimatedSprite(data["win"]["pre"]);
-            WINner["pre"].animationSpeed = fps / 60;
-            WINner["pre"].x = -220 * x;
-            KO_END.addChild(WINner["pre"]);
-            WINner["pre"].visible = false;
-            for (let i = 0; i < data["win"]["post"].length; i++) {
-                data["win"]["post"][i] = Mode[data["win"]["post"][i]];
-            }
-            data["win"]["post"][data["win"]["post"].length] = data["win"]["post"][data["win"]["post"].length - 1];
-            WINner["post"] = new PIXI.extras.AnimatedSprite(data["win"]["post"]);
-            WINner["post"].animationSpeed = fps / 60;
-            WINner["post"].x = -220 * x;
-            KO_END.addChild(WINner["post"]);
-            WINner["post"].visible = false;
-
+            LOSer["pre"] = Make_Animation(data["lose"]["pre"], Mode, KO_END, x);
+            LOSer["post"] = Make_Animation(data["lose"]["post"], Mode, KO_END, x);
+            WINner["pre"] = Make_Animation(data["win"]["pre"], Mode, KO_END, x);
+            WINner["post"] = Make_Animation(data["win"]["post"], Mode, KO_END, x);
 
             Mode = null;
             Ability = null;
@@ -820,9 +766,10 @@ exports.Fight = function(x) {
         pixels[0] = new Uint8Array(gl[0].drawingBufferWidth * gl[0].drawingBufferHeight * 4);
         pixels[1] = new Uint8Array(gl[1].drawingBufferWidth * gl[1].drawingBufferHeight * 4);
 
+        let Attack__Decide;
         let p1_fps = 0;
         let p2_fps = 0;
-        renderer.ticker.add(async function() {
+        renderer.ticker.add(Attack__Decide = async function() {
             p1_fps += fighter1.fps / 60;
             p2_fps += fighter2.fps / 60;
             if (!VS_isHELPER) {
@@ -1026,7 +973,8 @@ exports.Fight = function(x) {
             fighter2.avatar.x = 220 * x + (fighter2.stand_vector() * x / 4);
             renderer.stage.addChild(fighter2.avatar);
             /****************/
-            renderer.ticker.add(async function() {
+            let HPMP__UI;
+            renderer.ticker.add(HPMP__UI = async function() {
                 fighter1_HP[2].width = 68 * x * (1 - ((fighter1.HP()[0] - fighter1.HP()[1]) / fighter1.HP()[0]));
                 if (fighter1_HP[1].width > fighter1_HP[2].width && fighter1_HP[1].width > 0) {
                     fighter1_HP[1].width -= 0.5 * x;
@@ -1093,36 +1041,25 @@ exports.Fight = function(x) {
             });
             let KO__check;
             renderer.ticker.add(KO__check = async function() {
-                if (fighter1.HP()[1] == 0 && fighter2.HP()[1] == 0) {
-                    var richText = new PIXI.Text('Draw', K_O_);
+                if (fighter1.HP()[1] == 0 || fighter2.HP()[1] == 0) {
+                    let richText;
+                    if (fighter1.HP()[1] == 0 && fighter2.HP()[1] == 0) {
+                        richText = new PIXI.Text('Draw', K_O_);
+                    } else if (fighter1.HP()[1] == 0 && fighter2.HP()[1] != 0) {
+                        richText = new PIXI.Text(fighter2.fighter_name + ' win', K_O_);
+                    } else if (fighter1.HP()[1] != 0 && fighter2.HP()[1] == 0) {
+                        richText = new PIXI.Text(fighter1.fighter_name + ' win', K_O_);
+                    }
                     richText.x = 110 * x;
                     richText.y = 60 * x;
                     richText.anchor.set(0.5);
-
                     renderer.stage.addChild(richText);
+                    renderer.ticker.remove(KO__check);
+                    renderer.ticker.remove(HPMP__UI);
+                    renderer.ticker.remove(Attack__Decide);
                     fighter1.Game_Over();
                     fighter2.Game_Over();
-                    renderer.ticker.remove(KO__check);
-                } else if (fighter1.HP()[1] == 0 && fighter2.HP()[1] != 0) {
-                    var richText = new PIXI.Text(fighter2.fighter_name + ' win', K_O_);
-                    richText.x = 110 * x;
-                    richText.y = 60 * x;
-                    richText.anchor.set(0.5);
 
-                    renderer.stage.addChild(richText);
-                    fighter1.Game_Over();
-                    fighter2.Game_Over();
-                    renderer.ticker.remove(KO__check);
-                } else if (fighter1.HP()[1] != 0 && fighter2.HP()[1] == 0) {
-                    var richText = new PIXI.Text(fighter1.fighter_name + ' win', K_O_);
-                    richText.x = 110 * x;
-                    richText.y = 60 * x;
-                    richText.anchor.set(0.5);
-
-                    renderer.stage.addChild(richText);
-                    fighter1.Game_Over();
-                    fighter2.Game_Over();
-                    renderer.ticker.remove(KO__check);
                 }
             });
         };
