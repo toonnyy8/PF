@@ -17,21 +17,22 @@
 
 
 <body style="background-color:#000000;">
-    <!--<script>
-        screenset = function(x = 1) {
-            window.onload = function() {
-                window.resizeTo(220 * x + 30, 121 * x + 60);
-            };
-            window.onresize = function() {
-                window.resizeTo(220 * x + 30, 121 * x + 60);
-            };
-        };
-
-        screenset(screen_scale * 8);
-    </script>-->
-
+    <div id="app" style="text-align:center;">
+        <h3 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">No.{{ message }}</h3>
+    </div>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                message: 0
+            }
+        });
+    </script>
+    <div id="Animation" style="text-align:center;"></div>
     <script>
         "use strict";
+        let fighter_name = ipcRenderer.sendSync('ChooseAction');
+
         var action_s = [];
 
         var from_action = [];
@@ -52,6 +53,15 @@
         Change.action = [];
         var data = fs.readFileSync("./resources/app/chara/" + ipcRenderer.sendSync('ChooseAction') + "/player.json", 'utf8');
         data = JSON.parse(data);
+        var combos_status = [];
+        for (let i = 0; i < data["combos_status"].length; i++) {
+            if (data["combos_status"][i] != "null") {
+                combos_status[i] = false;
+            } else {
+                combos_status[i] = true;
+            }
+        }
+        var note = data["note"]
         var temp;
 
         for (var i = 0; i < data["action"].length; i++) {
@@ -78,237 +88,640 @@
             Change.action[i] = temp[11];
             temp = null;
         }
-        document.write('<div style="text-align:center;">');
-        for (let i = 0; i < data["action"].length; i++) {
-            document.write('<a onclick="OpenClose(' + i + ');"><div id=' + i + ' style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;"></div></a>');
-            action_s[i] = document.getElementById(i);
-            action_s[i].innerHTML = '<h3 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">動作 : ' + i + '</h3>';
 
-            document.write('<div id="action' + i + '">');
+        var Mode_pic = [];
+        var __Mode__ = [];
+        for (let i = 0; fs.existsSync("./resources/app/chara/" + fighter_name + "/mode/" + i + ".png"); i++) {
+            Mode_pic[i] = PIXI.Texture.fromImage("./chara/" + fighter_name + "/mode/" + i + ".png");
+            Mode_pic[i].baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST; //將導入的圖片以像素模式縮放
 
-            document.write('<div class="input-group">' +
-                '<span class="input-group-addon">從n動作接續(ex:1.2.7.9)</span>' +
-                '<input id="from_action' + i + '" type="text" class="form-control" value="' + from_action[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
-                '</div>' +
-                '<div style="padding:10px;margin-bottom:5px;"></div>' +
-                '<div class="input-group">' +
-                '<span class="input-group-addon">要求按下的按鍵(以鍵名編寫,用.連接)</span>' +
-                '<input id="cmd_code' + i + '" type="text" class="form-control" value="' + cmd_code[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
-                '</div>' +
-                '<div style="padding:10px;margin-bottom:5px;"></div>' +
-                '<div class="input-group">' +
-                '<span class="input-group-addon">要求達成指令的時限(毫秒)</span>' +
-                '<input id="limit_time' + i + '" type="number" min="0" class="form-control" value="' + limit_time[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
-                '</div>' +
-                '<div style="padding:10px;margin-bottom:5px;"></div>' +
-                '<div class="input-group">' +
-                '<span class="input-group-addon">演出的動作(用.連接)</span>' +
-                '<input id="Mode' + i + '" type="text" class="form-control" value="' + Mode[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
-                '</div>' +
-                '<div style="padding:10px;margin-bottom:5px;"></div>' +
-                '<div class="input-group">' +
-                '<span class="input-group-addon">實際的判定圖(用.連接)</span>' +
-                '<input id="Ability' + i + '" type="text" class="form-control" value="' + Ability[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
-                '</div>' +
-                '<div style="padding:10px;margin-bottom:5px;"></div>' +
-                '<div class="input-group">' +
-                '<span class="input-group-addon">前後移動速度(向前為正，向後為負，不影響速度就不填)</span>' +
-                '<input id="speed_x' + i + '" type="number" class="form-control" value="' + speed.x[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
-                '</div>' +
-                '<div style="padding:10px;margin-bottom:5px;"></div>' +
-                '<div class="input-group">' +
-                '<span class="input-group-addon">上下移動速度(向上為正，向下為負，不影響速度就不填)</span>' +
-                '<input id="speed_y' + i + '" type="number" class="form-control" value="' + speed.y[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
-                '</div>' +
-                '<div style="padding:10px;margin-bottom:5px;"></div>' +
-                '<h6 style="color:rgb(255, 255, 255);font-family:Microsoft JhengHei;">' +
-                '<div class="bootstrap-switch-square">');
-            if (hold_key[i]) {
-                document.write('是否按住續力 : <input id="hold_key' + i + '" type="checkbox" checked data-toggle="switch" value="0" />');
-            } else {
-                document.write('是否按住續力 : <input id="hold_key' + i + '" type="checkbox" data-toggle="switch" value="0" />');
+            var rectangle = new PIXI.Rectangle(data["modePillar"][i], 0, (440 - data["modePillar"][i]) * 2.5, 120 * 2.5);
+            Mode_pic[i].baseTexture.resolution = (1 / 2.5);
+            if (data["Mode_size"] != undefined) {
+                if (data["Mode_size"][i] != undefined) {
+                    Mode_pic[i].baseTexture.resolution *= data["Mode_size"][i];
+                };
             };
-            document.write('</div> </h6>' +
-                '<div style="padding:10px;margin-bottom:5px;"></div>' +
-                '<div class="input-group">' +
-                '<span class="input-group-addon">當面向特定方向才發動(右填0，左填1，都可發動就不填)</span>' +
-                '<input id="faceTo' + i + '" type="number" min="-1" max="0" class="form-control" value="' + faceTo[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
-                '</div>' +
-                '<div style="padding:10px;margin-bottom:5px;"></div>' +
-                '<div class="input-group">' +
-                '<span class="input-group-addon">動作撥放多少後可供接技(0~1=0%~100%)</span>' +
-                '<input id="what_time_to_combo' + i + '" type="number" min="0" max="1" class="form-control" value="' + what_time_to_combo[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
-                '</div>' +
-                '<div style="padding:10px;margin-bottom:5px;"></div>' +
-                '<div class="input-group">' +
-                '<span class="input-group-addon">撥放完後自動接續的動作(不填表示沒有)</span>' +
-                '<input id="auto_play_action' + i + '" type="number" min="0" class="form-control" value="' + auto_play_action[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
-                '</div>' +
-                '<div style="padding:10px;margin-bottom:5px;"></div>' +
-                '<h6 style="color:rgb(255, 255, 255);font-family:Microsoft JhengHei;">' +
-                '<div class="bootstrap-switch-square">');
-            if (data["combos_status"][i] == "null") {
-                document.write('是否回傳常駐狀態(變身用) : <input id="combos_status' + i + '" type="checkbox" checked data-toggle="switch" value="0" />');
-            } else {
-                document.write('是否回傳常駐狀態(變身用) : <input id="combos_status' + i + '" type="checkbox" data-toggle="switch" value="0" />');
-            };
-            document.write('</div> </h6>' +
-
-                '<div style="padding:10px;margin-bottom:5px;"></div>' +
-                '<div class="input-group">' +
-                '<span class="input-group-addon">發動動作所改變的HP(不足則無法發動，正增加，負減少)</span>' +
-                '<input id="Change_HP' + i + '" type="number" class="form-control" value="' + Change.HP[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
-                '</div>' +
-                '<div style="padding:10px;margin-bottom:5px;"></div>' +
-                '<div class="input-group">' +
-                '<span class="input-group-addon">發動動作所改變的MP(不足則無法發動，正增加，負減少)</span>' +
-                '<input id="Change_MP' + i + '" type="number" class="form-control" value="' + Change.MP[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
-                '</div>' +
-                '<div style="padding:10px;margin-bottom:5px;"></div>' +
-                '<div class="input-group">' +
-                '<span class="input-group-addon">受攻擊所改變的動作(不改變就不填)</span>' +
-                '<input id="Change_action' + i + '" type="number" min="0" class="form-control" value="' + Change.action[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
-                '</div>' +
-                '<div style="padding:10px;margin-bottom:5px;"></div>' +
-                '<div class="input-group">' +
-                '<span class="input-group-addon">動作註解</span>' +
-                '<textarea id="note' + i + '" rows="2" class="form-control" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;"></textarea>' +
-                '</div>' +
-                '<div style="padding:10px;margin-bottom:5px;"></div>' +
-                '<input type="button" onclick="savedata(' + i + ');" class="btn btn-block btn-lg btn-info" value="儲存">' +
-                '<div style="padding:10px;margin-bottom:5px;"></div>' +
-                '<input type="button" onclick="deleteAction(' + i + ');" class="btn btn-block btn-lg btn-info" value="刪除">');
-
-            document.write('</div>');
-            document.getElementById("action" + i).style = "display: none";
-            document.getElementById("note" + i).value = data["note"][i];
+            Mode_pic[i] = new PIXI.Texture(Mode_pic[i], rectangle);
         };
-        document.write('<a onclick="AddNewAction();"><div id="AddNewAction" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;"></div></a>');
-        document.getElementById("AddNewAction").innerHTML = '<h3 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">新增動作</h3>';
-        document.write('</div>');
-        action_s[0].style = "background-color:rgb(255, 255, 255);padding:1px;margin-bottom:5px;text-align:center;";
+        var Ability_pic = [];
+        var __Ability__ = [];
+        for (let i = 0; fs.existsSync("./resources/app/chara/" + fighter_name + "/ability/" + i + ".png"); i++) {
+            Ability_pic[i] = PIXI.Texture.fromImage("./chara/" + fighter_name + "/ability/" + i + ".png");
+            Ability_pic[i].baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST; //將導入的圖片以像素模式縮放
+
+            var rectangle = new PIXI.Rectangle(data["abilityPillar"][i], 0, (440 - data["abilityPillar"][i]) * 2.5, 120 * 2.5);
+            Ability_pic[i].baseTexture.resolution = (1 / 2.5);
+            Ability_pic[i] = new PIXI.Texture(Ability_pic[i], rectangle);
+        };
+        var Make_Animation = function(Action_Animation_pic_num, Module, Animation_stage, multiple = 1) {
+            let Action_Animation
+            for (let i = 0; i < Action_Animation_pic_num.length; i++) {
+                if (Module[Action_Animation_pic_num[i]] != null) {
+                    Action_Animation_pic_num[i] = Module[Action_Animation_pic_num[i]];
+                } else {
+                    Action_Animation_pic_num[i] = new PIXI.Texture(null);
+                }
+            }
+            Action_Animation_pic_num[Action_Animation_pic_num.length] = Action_Animation_pic_num[Action_Animation_pic_num.length - 1];
+            Action_Animation = new PIXI.extras.AnimatedSprite(Action_Animation_pic_num);
+            Action_Animation.animationSpeed = data["FPS"] / 60;
+            Action_Animation.x = 0;
+            Animation_stage.addChild(Action_Animation);
+            Action_Animation.visible = false;
+            return Action_Animation;
+        };
+        let renderer = new PIXI.Application(440 * 2.5, 120 * 2.5, {
+            transparent: true
+        });
+        document.getElementById("Animation").appendChild(renderer.renderer.view); // 連結至網頁
+        var stage = new PIXI.Container(); //設置容器
+        renderer.stage.addChild(stage);
+
+        for (let i = 0; i < data["action"].length; i++) {
+            __Ability__[i] = Make_Animation(Ability[i].split("."), Ability_pic, stage);
+            //__Ability__[i].visible = true;
+
+            __Mode__[i] = Make_Animation(Mode[i].split("."), Mode_pic, stage);
+            //__Mode__[i].visible = true;
+
+            __Ability__[i].gotoAndPlay(0);
+            __Mode__[i].gotoAndPlay(0);
+
+            keyboardJS.bind("t", function() {
+                if (__Ability__[i].visible == true) {
+                    if (__Mode__[i].visible == true) {
+                        __Mode__[i].visible = false;
+                    } else {
+                        __Mode__[i].visible = true;
+                    }
+                }
+            });
+            keyboardJS.bind("s", function() {
+                if (__Mode__[i].playing) {
+                    __Mode__[i].stop();
+                    __Ability__[i].stop();
+                } else {
+                    __Mode__[i].play();
+                    __Ability__[i].play();
+                }
+            });
+
+            keyboardJS.bind("left", function() {
+                if (!__Mode__[i].playing) {
+                    if (__Mode__[i].currentFrame > 0) {
+                        __Mode__[i].gotoAndStop(__Mode__[i].currentFrame - 1);
+                    } else {
+                        __Mode__[i].gotoAndStop(Ability[i].split(".").length - 1);
+                    }
+                };
+                if (!__Ability__[i].playing) {
+                    if (__Ability__[i].currentFrame > 0) {
+                        __Ability__[i].gotoAndStop(__Ability__[i].currentFrame - 1);
+                    } else {
+                        __Ability__[i].gotoAndStop(Ability[i].split(".").length - 1);
+                    }
+                };
+            });
+            keyboardJS.bind("right", function() {
+                if (!__Mode__[i].playing) {
+                    if (__Mode__[i].currentFrame < Ability[i].split(".").length - 1) {
+                        __Mode__[i].gotoAndStop(__Mode__[i].currentFrame + 1);
+                    } else {
+                        __Mode__[i].gotoAndStop(0);
+                    }
+                };
+                if (!__Ability__[i].playing) {
+                    if (__Ability__[i].currentFrame < Ability[i].split(".").length - 1) {
+                        __Ability__[i].gotoAndStop(__Ability__[i].currentFrame + 1);
+                    } else {
+                        __Ability__[i].gotoAndStop(0);
+                    }
+                };
+            });
+
+            keyboardJS.bind("r", function() {
+                if (__Mode__[i].playing) {
+                    __Mode__[i].gotoAndPlay(0);
+                    __Ability__[i].gotoAndPlay(0);
+                } else {
+                    __Mode__[i].gotoAndStop(0);
+                    __Ability__[i].gotoAndStop(0);
+                }
+            });
+        };
+        __Ability__[0].visible = true;
+        __Mode__[0].visible = true;
+        let action_select = 0;
+        keyboardJS.bind("up", function() {
+            if (action_select > 0) {
+                __Mode__[action_select].visible = false;
+                __Ability__[action_select].visible = false;
+                action_select -= 1;
+                __Mode__[action_select].visible = true;
+                __Ability__[action_select].visible = true;
+            } else {
+                __Mode__[action_select].visible = false;
+                __Ability__[action_select].visible = false;
+                action_select = data["action"].length - 1;
+                __Mode__[action_select].visible = true;
+                __Ability__[action_select].visible = true;
+            };
+            app.message = action_select;
+            data_view.from_action = from_action[action_select];
+            data_view.auto_play_action = auto_play_action[action_select];
+            data_view.cmd_code = cmd_code[action_select];
+            data_view.Mode = Mode[action_select];
+            data_view.Ability = Ability[action_select];
+            data_view.limit_time = limit_time[action_select];
+            data_view.hold_key = hold_key[action_select];
+            data_view.combos_status = combos_status[action_select];
+            data_view.what_time_to_combo = what_time_to_combo[action_select];
+            data_view.speed_x = speed.x[action_select];
+            data_view.speed_y = speed.y[action_select];
+            data_view.faceTo = faceTo[action_select];
+            data_view.Change_HP = Change.HP[action_select];
+            data_view.Change_MP = Change.MP[action_select];
+            data_view.Change_action = Change.action[action_select];
+            data_view.note = note[action_select];
+        });
+        keyboardJS.bind("down", function() {
+            if (action_select < data["action"].length - 1) {
+                __Mode__[action_select].visible = false;
+                __Ability__[action_select].visible = false;
+                action_select += 1;
+                __Mode__[action_select].visible = true;
+                __Ability__[action_select].visible = true;
+            } else {
+                __Mode__[action_select].visible = false;
+                __Ability__[action_select].visible = false;
+                action_select = 0;
+                __Mode__[action_select].visible = true;
+                __Ability__[action_select].visible = true;
+            };
+            app.message = action_select;
+            data_view.from_action = from_action[action_select];
+            data_view.auto_play_action = auto_play_action[action_select];
+            data_view.cmd_code = cmd_code[action_select];
+            data_view.Mode = Mode[action_select];
+            data_view.Ability = Ability[action_select];
+            data_view.limit_time = limit_time[action_select];
+            data_view.hold_key = hold_key[action_select];
+            data_view.combos_status = combos_status[action_select];
+            data_view.what_time_to_combo = what_time_to_combo[action_select];
+            data_view.speed_x = speed.x[action_select];
+            data_view.speed_y = speed.y[action_select];
+            data_view.faceTo = faceTo[action_select];
+            data_view.Change_HP = Change.HP[action_select];
+            data_view.Change_MP = Change.MP[action_select];
+            data_view.Change_action = Change.action[action_select];
+            data_view.note = note[action_select];
+        });
+        keyboardJS.bind("esc", function() {
+            window.location.href = "./PF.choose.action.html";
+        });
+        keyboardJS.bind("shift+a", function() {
+            if (data_view.page > 1) {
+                data_view.page -= 1;
+            }
+        });
+        keyboardJS.bind("shift+d", function() {
+            if (data_view.page < 6) {
+                data_view.page += 1;
+            }
+        });
+    </script>
+
+    <div id="data">
+        <div style="text-align:center;" class="col-xs-3">
+            <h4 v-on:click="page -= 1" v-if="page>1" style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">
+                上一頁
+            </h4>
+            <div style="padding:50px;margin-bottom:5px;"></div>
+            <h3 onclick="save()" v-if="page==1" style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">
+                儲存
+            </h3>
+            <div style="padding:20px;margin-bottom:5px;"></div>
+            <h3 onclick="AddNewAction()" v-if="page==1" style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">
+                新增動作
+            </h3>
+        </div>
+        <div v-if="page==1" style="text-align:center;" class="col-xs-6">
+            <p>
+                <a onclick="from_action_open()">
+                    <div v-if="!from_action_open" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">從n動作接續(ex:1.2.7.9) :
+                        </h4>
+                    </div>
+                    <div v-if="from_action_open" style="background-color:rgb(51, 51, 51);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">從n動作接續(ex:1.2.7.9) :
+                        </h4>
+                    </div>
+                </a>
+                <div v-if="from_action_open" class="row demo-row">
+                    <input v-model="from_action" style="position: relative;text-align:center; vertical-align: middle; background-color: transparent;color:rgb(225, 238, 255);" class="col-xs-12" type="text" placeholder="從n動作接續" />
+                </div>
+                <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">
+                    <a v-on:click="gotoAction(from_action.split('.')[n-1])" v-for="n in from_action.split('.').length" style="color:rgb(0, 204, 255);">{{from_action.split('.')[n-1]}}  </a>
+                </h4>
+            </p>
+            <p>
+                <a onclick="auto_play_action_open()">
+                    <div v-if="!auto_play_action_open" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">撥放完後自動接續的動作(沒有填null) :
+                        </h4>
+                    </div>
+                    <div v-if="auto_play_action_open" style="background-color:rgb(51, 51, 51);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">撥放完後自動接續的動作(沒有填null) :
+                        </h4>
+                    </div>
+                </a>
+                <div v-if="auto_play_action_open" class="row demo-row">
+                    <input v-model="auto_play_action" style="position: relative;text-align:center; vertical-align: middle; background-color: transparent;color:rgb(225, 238, 255);" class="col-xs-12" type="text" placeholder="撥放完後自動接續的動作" />
+                </div>
+                <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">
+                    <a v-on:click="gotoAction(auto_play_action)" style="color:rgb(0, 204, 255);">{{auto_play_action}}</a>
+                </h4>
+            </p>
+            <p>
+                <a onclick="cmd_code_open()">
+                    <div v-if="!cmd_code_open" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">要求按下的按鍵(以鍵名編寫,用.連接) :
+                            <font style="color:rgb(0, 204, 255);">{{cmd_code}}</font>
+                        </h4>
+                    </div>
+                    <div v-if="cmd_code_open" style="background-color:rgb(51, 51, 51);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">要求按下的按鍵(以鍵名編寫,用.連接) :
+                            <font style="color:rgb(0, 204, 255);">{{cmd_code}}</font>
+                        </h4>
+                    </div>
+                </a>
+                <div v-if="cmd_code_open" class="row demo-row">
+                    <input v-model="cmd_code" style="position: relative;text-align:center; vertical-align: middle; background-color: transparent;color:rgb(225, 238, 255);" class="col-xs-12" type="text" placeholder="要求按下的按鍵" />
+                </div>
+            </p>
+        </div>
+        <div v-if="page==2" style="text-align:center;" class="col-xs-6">
+            <p>
+                <a onclick="Mode_open()">
+                    <div v-if="!Mode_open" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">Mode Picture :
+                            <font style="color:rgb(0, 204, 255);">{{ Mode }}</font>
+                        </h4>
+                    </div>
+                    <div v-if="Mode_open" style="background-color:rgb(51, 51, 51);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">Mode Picture :
+                            <font style="color:rgb(0, 204, 255);">{{ Mode }}</font>
+                        </h4>
+                    </div>
+                </a>
+                <div v-if="Mode_open" class="row demo-row">
+                    <input v-model="Mode" style="position: relative;text-align:center; vertical-align: middle; background-color: transparent;color:rgb(225, 238, 255);" class="col-xs-12" type="text" placeholder="Mode Picture" />
+                </div>
+            </p>
+            <p>
+                <a onclick="Ability_open()">
+                    <div v-if="!Ability_open" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">Ability Picture :
+                            <font style="color:rgb(0, 204, 255);">{{Ability}}</font>
+                        </h4>
+                    </div>
+                    <div v-if="Ability_open" style="background-color:rgb(51, 51, 51);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">Ability Picture :
+                            <font style="color:rgb(0, 204, 255);">{{Ability}}</font>
+                        </h4>
+                    </div>
+                </a>
+                <div v-if="Ability_open" class="row demo-row">
+                    <input v-model="Ability" style="position: relative;text-align:center; vertical-align: middle; background-color: transparent;color:rgb(225, 238, 255);" class="col-xs-12" type="text" placeholder="Ability Picture" />
+                </div>
+            </p>
+        </div>
+        <div v-if="page==3" style="text-align:center;" class="col-xs-6">
+            <p>
+                <a onclick="limit_time_open()">
+                    <div v-if="!limit_time_open" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">要求達成指令的時限(毫秒) :
+                            <font style="color:rgb(0, 204, 255);">{{limit_time}}</font>
+                        </h4>
+                    </div>
+                    <div v-if="limit_time_open" style="background-color:rgb(51, 51, 51);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">要求達成指令的時限(毫秒) :
+                            <font style="color:rgb(0, 204, 255);">{{limit_time}}</font>
+                        </h4>
+                    </div>
+                </a>
+                <div v-if="limit_time_open" class="row demo-row">
+                    <input v-model="limit_time" style="position: relative;text-align:center; vertical-align: middle; background-color: transparent;color:rgb(225, 238, 255);" class="col-xs-12" type="text" placeholder="要求達成指令的時限" />
+                </div>
+            </p>
+            <div>
+                <div style="text-align:center;" class="col-xs-6">
+                    <p>
+                        <a onclick="hold_key_choose()">
+                            <div v-if="!hold_key" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                                <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">是否按住續力 :
+                                    <font style="color:rgb(0, 204, 255);">{{hold_key}}</font>
+                                </h4>
+                            </div>
+                            <div v-if="hold_key" style="background-color:rgb(51, 51, 51);padding:1px;margin-bottom:5px;text-align:center;">
+                                <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">是否按住續力 :
+                                    <font style="color:rgb(0, 204, 255);">{{hold_key}}</font>
+                                </h4>
+                            </div>
+                        </a>
+                    </p>
+                </div>
+                <div style="text-align:center;" class="col-xs-6">
+                    <p>
+                        <a onclick="combos_status_choose()">
+                            <div v-if="!combos_status" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                                <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">是否回傳常駐狀態(變身用) :
+                                    <font style="color:rgb(0, 204, 255);">{{combos_status}}</font>
+                                </h4>
+                            </div>
+                            <div v-if="combos_status" style="background-color:rgb(51, 51, 51);padding:1px;margin-bottom:5px;text-align:center;">
+                                <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">是否回傳常駐狀態(變身用) :
+                                    <font style="color:rgb(0, 204, 255);">{{combos_status}}</font>
+                                </h4>
+                            </div>
+                        </a>
+                    </p>
+                </div>
+            </div>
+            <div style="padding:80px;margin-bottom:5px;"></div>
+            <p>
+                <a onclick="what_time_to_combo_open()">
+                    <div v-if="!what_time_to_combo_open" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">動作撥放多少後可供接技(0~1=0%~100%) :
+                            <font style="color:rgb(0, 204, 255);">{{what_time_to_combo}}</font>
+                        </h4>
+                    </div>
+                    <div v-if="what_time_to_combo_open" style="background-color:rgb(51, 51, 51);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">動作撥放多少後可供接技(0~1=0%~100%) :
+                            <font style="color:rgb(0, 204, 255);">{{what_time_to_combo}}</font>
+                        </h4>
+                    </div>
+                </a>
+                <div v-if="what_time_to_combo_open" class="row demo-row">
+                    <input v-model="what_time_to_combo" style="position: relative;text-align:center; vertical-align: middle; background-color: transparent;color:rgb(225, 238, 255);" class="col-xs-12" type="text" placeholder="動作撥放多少後可供接技" />
+                </div>
+            </p>
+        </div>
+        <div v-if="page==4" style="text-align:center;" class="col-xs-6">
+            <p>
+                <a onclick="speed_x_open()">
+                    <div v-if="!speed_x_open" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">前後移動速度(向前為正，向後為負，不影響速度填null) :
+                            <font style="color:rgb(0, 204, 255);">{{speed_x}}</font>
+                        </h4>
+                    </div>
+                    <div v-if="speed_x_open" style="background-color:rgb(51, 51, 51);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">前後移動速度(向前為正，向後為負，不影響速度填null) :
+                            <font style="color:rgb(0, 204, 255);">{{speed_x}}</font>
+                        </h4>
+                    </div>
+                </a>
+                <div v-if="speed_x_open" class="row demo-row">
+                    <input v-model="speed_x" style="position: relative;text-align:center; vertical-align: middle; background-color: transparent;color:rgb(225, 238, 255);" class="col-xs-12" type="text" placeholder="前後移動速度" />
+                </div>
+            </p>
+            <p>
+                <a onclick="speed_y_open()">
+                    <div v-if="!speed_y_open" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">上下移動速度(向前為正，向後為負，不影響速度填null) :
+                            <font style="color:rgb(0, 204, 255);">{{speed_y}}</font>
+                        </h4>
+                    </div>
+                    <div v-if="speed_y_open" style="background-color:rgb(51, 51, 51);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">上下移動速度(向前為正，向後為負，不影響速度填null) :
+                            <font style="color:rgb(0, 204, 255);">{{speed_y}}</font>
+                        </h4>
+                    </div>
+                </a>
+                <div v-if="speed_y_open" class="row demo-row">
+                    <input v-model="speed_y" style="position: relative;text-align:center; vertical-align: middle; background-color: transparent;color:rgb(225, 238, 255);" class="col-xs-12" type="text" placeholder="上下移動速度" />
+                </div>
+            </p>
+            <p>
+                <a onclick="faceTo_open()">
+                    <div v-if="!faceTo_open" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">當面向特定方向才發動(右填0，左填1，都可發動就填null) :
+                            <font style="color:rgb(0, 204, 255);">{{faceTo}}</font>
+                        </h4>
+                    </div>
+                    <div v-if="faceTo_open" style="background-color:rgb(51, 51, 51);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">當面向特定方向才發動(右填0，左填1，都可發動就填null) :
+                            <font style="color:rgb(0, 204, 255);">{{faceTo}}</font>
+                        </h4>
+                    </div>
+                </a>
+                <div v-if="faceTo_open" class="row demo-row">
+                    <input v-model="faceTo" style="position: relative;text-align:center; vertical-align: middle; background-color: transparent;color:rgb(225, 238, 255);" class="col-xs-12" type="text" placeholder="當面向特定方向才發動" />
+                </div>
+            </p>
+        </div>
+        <div v-if="page==5" style="text-align:center;" class="col-xs-6">
+            <p>
+                <a onclick="Change_HP_open()">
+                    <div v-if="!Change_HP_open" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">發動動作所改變的HP(不足則無法發動，正增加，負減少) :
+                            <font style="color:rgb(0, 204, 255);">{{Change_HP}}</font>
+                        </h4>
+                    </div>
+                    <div v-if="Change_HP_open" style="background-color:rgb(51, 51, 51);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">發動動作所改變的HP(不足則無法發動，正增加，負減少) :
+                            <font style="color:rgb(0, 204, 255);">{{Change_HP}}</font>
+                        </h4>
+                    </div>
+                </a>
+                <div v-if="Change_HP_open" class="row demo-row">
+                    <input v-model="Change_HP" style="position: relative;text-align:center; vertical-align: middle; background-color: transparent;color:rgb(225, 238, 255);" class="col-xs-12" type="text" placeholder="發動動作所改變的HP" />
+                </div>
+            </p>
+            <p>
+                <a onclick="Change_MP_open()">
+                    <div v-if="!Change_MP_open" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">發動動作所改變的MP(不足則無法發動，正增加，負減少) :
+                            <font style="color:rgb(0, 204, 255);">{{Change_MP}}</font>
+                        </h4>
+                    </div>
+                    <div v-if="Change_MP_open" style="background-color:rgb(51, 51, 51);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">發動動作所改變的MP(不足則無法發動，正增加，負減少) :
+                            <font style="color:rgb(0, 204, 255);">{{Change_MP}}</font>
+                        </h4>
+                    </div>
+                </a>
+                <div v-if="Change_MP_open" class="row demo-row">
+                    <input v-model="Change_MP" style="position: relative;text-align:center; vertical-align: middle; background-color: transparent;color:rgb(225, 238, 255);" class="col-xs-12" type="text" placeholder="發動動作所改變的MP" />
+                </div>
+            </p>
+            <p>
+                <a onclick="Change_action_open()">
+                    <div v-if="!Change_action_open" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">受攻擊所改變的動作(不改變就不填) :
+                            <font style="color:rgb(0, 204, 255);">{{Change_action}}</font>
+                        </h4>
+                    </div>
+                    <div v-if="Change_action_open" style="background-color:rgb(51, 51, 51);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">受攻擊所改變的動作(不改變就不填) :
+                            <font style="color:rgb(0, 204, 255);">{{Change_action}}</font>
+                        </h4>
+                    </div>
+                </a>
+                <div v-if="Change_action_open" class="row demo-row">
+                    <input v-model="Change_action" style="position: relative;text-align:center; vertical-align: middle; background-color: transparent;color:rgb(225, 238, 255);" class="col-xs-12" type="text" placeholder="受攻擊所改變的動作" />
+                </div>
+            </p>
+        </div>
+        <div v-if="page==6" style="text-align:center;" class="col-xs-6">
+            <p>
+                <a onclick="note_open()">
+                    <div v-if="!note_open" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">動作註解 :
+                            <font style="color:rgb(0, 204, 255);">{{note}}</font>
+                        </h4>
+                    </div>
+                    <div v-if="note_open" style="background-color:rgb(51, 51, 51);padding:1px;margin-bottom:5px;text-align:center;">
+                        <h4 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">動作註解 :
+                            <font style="color:rgb(0, 204, 255);">{{note}}</font>
+                        </h4>
+                    </div>
+                </a>
+                <div v-if="note_open" class="row demo-row">
+                    <textarea v-model="note" rows="5" class="col-xs-12" style="position: relative;text-align:center; vertical-align: middle; background-color: transparent;color:rgb(225, 238, 255);" placeholder="動作註解"></textarea>
+                </div>
+            </p>
+        </div>
+        <div style="text-align:center;" class="col-xs-3">
+            <h4 v-on:click="page += 1" v-if="page<6" style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">
+                下一頁
+            </h4>
+            <div style="padding:50px;margin-bottom:5px;"></div>
+            <h3 onclick="deleteAction(action_select)" v-if="page==6" style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">
+                刪除動作
+            </h3>
+        </div>
+    </div>
+
+    <script>
+        var data_view = new Vue({
+            el: '#data',
+            data: {
+                page: 1,
+                from_action: from_action[0],
+                from_action_open: true,
+                auto_play_action: auto_play_action[0],
+                auto_play_action_open: false,
+                cmd_code: cmd_code[0],
+                cmd_code_open: false,
+                Mode: Mode[0],
+                Mode_open: true,
+                Ability: Ability[0],
+                Ability_open: false,
+                limit_time: limit_time[0],
+                limit_time_open: true,
+                hold_key: hold_key[0],
+                combos_status: combos_status[0],
+                what_time_to_combo: what_time_to_combo[0],
+                what_time_to_combo_open: false,
+                speed_x: speed.x[0],
+                speed_x_open: true,
+                speed_y: speed.y[0],
+                speed_y_open: false,
+                faceTo: faceTo[0],
+                faceTo_open: false,
+                Change_HP: Change.HP[0],
+                Change_HP_open: true,
+                Change_MP: Change.MP[0],
+                Change_MP_open: false,
+                Change_action: Change.action[0],
+                Change_action_open: false,
+                note: note[0],
+                note_open: true,
+                gotoAction: function(n) {
+                    n = Number(n);
+                    if (n < data["action"].length && n >= 0) {
+                        console.log(n);
+                        __Mode__[action_select].visible = false;
+                        __Ability__[action_select].visible = false;
+                        action_select = n;
+                        __Mode__[action_select].visible = true;
+                        __Ability__[action_select].visible = true;
+                        app.message = action_select;
+                        data_view.from_action = from_action[action_select];
+                        data_view.auto_play_action = auto_play_action[action_select];
+                        data_view.cmd_code = cmd_code[action_select];
+                        data_view.Mode = Mode[action_select];
+                        data_view.Ability = Ability[action_select];
+                        data_view.limit_time = limit_time[action_select];
+                        data_view.hold_key = hold_key[action_select];
+                        data_view.combos_status = combos_status[action_select];
+                        data_view.what_time_to_combo = what_time_to_combo[action_select];
+                        data_view.speed_x = speed.x[action_select];
+                        data_view.speed_y = speed.y[action_select];
+                        data_view.faceTo = faceTo[action_select];
+                        data_view.Change_HP = Change.HP[action_select];
+                        data_view.Change_MP = Change.MP[action_select];
+                        data_view.Change_action = Change.action[action_select];
+                        data_view.note = note[action_select];
+                    };
+                }
+            }
+        });
     </script>
     <script>
-        "use strict";
-        let Expand = false; //是否有單項動作攔展開
-        var select = 0;
-        let OpenClose = function(n) {
-            select = n;
-            if (Expand) { //關閉動作攔
-                for (let i = 0; i < data["action"].length; i++) {
-                    if (i != select) {
-                        action_s[i].style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
-                        document.getElementById("action" + i).style = "display: none";
-                    } else {
-                        document.getElementById("action" + i).style = "display: none";
-                    };
-                };
-                document.getElementById("AddNewAction").style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
-                document.body.scrollTop = select * 84; //控制卷軸位置
-                Expand = false;
-            } else { //展開動作攔
-                for (let i = 0; i < data["action"].length; i++) {
-                    if (i != select) {
-                        action_s[i].style = "display: none";
-                        document.getElementById("action" + i).style = "display: none";
-                    } else {
-                        action_s[i].style = "background-color:rgb(255,255,255);padding:1px;margin-bottom:5px;text-align:center;";
-                        document.getElementById("action" + i).style = "";
-                    };
-                };
-                document.getElementById("AddNewAction").style = "display: none";
-                Expand = true;
-            }
-        }
-        let savedata = function(n) {
-            from_action[n] = document.getElementById("from_action" + n).value;
-            if (from_action[n] == "") {
-                from_action[n] = "null";
+        var save = function() {
+            for (let i = 0; i < data["action"].length; i++) {
+                if (hold_key[i] == true) {
+                    hold_key[i] = 1;
+                } else {
+                    hold_key[i] = 0;
+                }
+                data["action"][i] = from_action[i] + '_' +
+                    cmd_code[i] + '_' +
+                    limit_time[i] + '_' +
+                    Mode[i] + '_' +
+                    Ability[i] + '_' +
+                    speed.x[i] + '.' +
+                    speed.y[i] + '_' +
+                    hold_key[i] + '_' +
+                    faceTo[i] + '_' +
+                    what_time_to_combo[i] + '_' +
+                    auto_play_action[i] + '_' +
+                    Change.HP[i] + '.' +
+                    Change.MP[i] + '_' +
+                    Change.action[i];
+                if (combos_status[i] == true) {
+                    data["combos_status"][i] = "null";
+                } else {
+                    data["combos_status"][i] = i;
+                }
+                data["note"][i] = note[i];
             };
-            cmd_code[n] = document.getElementById("cmd_code" + n).value;
-            if (cmd_code[n] == "") {
-                cmd_code[n] = "null";
-            };
-            limit_time[n] = document.getElementById("limit_time" + n).value;
-            if (limit_time[n] == "") {
-                limit_time[n] = "250";
-            };
-            Mode[n] = document.getElementById("Mode" + n).value;
-            if (Mode[n] == "") {
-                Mode[n] = "0";
-            };
-            Ability[n] = document.getElementById("Ability" + n).value;
-            if (Ability[n] == "") {
-                Ability[n] = "0";
-            };
-            speed.x[n] = document.getElementById("speed_x" + n).value;
-            if (speed.x[n] == "") {
-                speed.x[n] = "null";
-            };
-            speed.y[n] = document.getElementById("speed_y" + n).value;
-            if (speed.y[n] == "") {
-                speed.y[n] = "null";
-            };
-            hold_key[n] = document.getElementById("hold_key" + n).checked;
-            if (hold_key[n] == true) {
-                hold_key[n] = "1";
-            } else {
-                hold_key[n] = "0";
-            };
-            faceTo[n] = document.getElementById("faceTo" + n).value;
-            if (faceTo[n] == "") {
-                faceTo[n] = "null";
-            };
-            what_time_to_combo[n] = document.getElementById("what_time_to_combo" + n).value;
-            if (what_time_to_combo[n] == "") {
-                what_time_to_combo[n] = "0";
-            };
-            auto_play_action[n] = document.getElementById("auto_play_action" + n).value;
-            if (auto_play_action[n] == "") {
-                auto_play_action[n] = "null";
-            };
-            Change.HP[n] = document.getElementById("Change_HP" + n).value;
-            if (Change.HP[n] == "") {
-                Change.HP[n] = "0";
-            };
-            Change.MP[n] = document.getElementById("Change_MP" + n).value;
-            if (Change.MP[n] == "") {
-                Change.MP[n] = "0";
-            };
-            Change.action[n] = document.getElementById("Change_action" + n).value;
-            if (Change.action[n] == "") {
-                Change.action[n] = "null";
-            };
-            data["action"][n] = from_action[n] + '_' +
-                cmd_code[n] + '_' +
-                limit_time[n] + '_' +
-                Mode[n] + '_' +
-                Ability[n] + '_' +
-                speed.x[n] + '.' +
-                speed.y[n] + '_' +
-                hold_key[n] + '_' +
-                faceTo[n] + '_' +
-                what_time_to_combo[n] + '_' +
-                auto_play_action[n] + '_' +
-                Change.HP[n] + '.' +
-                Change.MP[n] + '_' +
-                Change.action[n];
-            if (document.getElementById("combos_status" + n).checked) {
-                data["combos_status"][n] = "null";
-            } else {
-                data["combos_status"][n] = "" + n;
-            }
-            data["note"][n] = document.getElementById("note" + n).value
-            fs.writeFile("./resources/app/chara/" + ipcRenderer.sendSync('ChooseAction') + "/player.json", JSON.stringify(data), function(err) {
+            fs.writeFile("./resources/app/chara/" + fighter_name + "/player.json", JSON.stringify(data), function(err) {
                 if (err) {
                     console.log(err);
                     alert(err);
                 } else {
                     console.log("save player.json");
+                    alert("save player.json");
                 };
             });
+            for (let i = 0; i < data["action"].length; i++) {
+                if (hold_key[i] == 1) {
+                    hold_key[i] = true;
+                } else {
+                    hold_key[i] = false;
+                }
+                if (data["combos_status"][i] != "null") {
+                    combos_status[i] = false;
+                } else {
+                    combos_status[i] = true;
+                }
+            };
         };
-        let AddNewAction = function() {
+        var AddNewAction = function() {
             data["note"][data["action"].length] = "";
             data["combos_status"][data["action"].length] = "" + data["action"].length;
             data["action"][data["action"].length] = "null_null_250_0_0_null.null_0_null_0_null_0.0_null";
@@ -317,12 +730,13 @@
                     console.log(err);
                     alert(err);
                 } else {
-                    console.log("save player.json");
+                    console.log("add new action");
+                    alert("add new action");
                 };
             });
             window.location.href = "./PF.action.html";
         };
-        let deleteAction = function(n) {
+        var deleteAction = function(n) {
             data["combos_status"].splice(n, 1);
             for (let i = 0; i < data["combos_status"].length; i++) {
                 if (data["combos_status"][i] != "null") {
@@ -336,51 +750,198 @@
                     console.log(err);
                     alert(err);
                 } else {
-                    console.log("save player.json");
+                    console.log("delete action");
+                    alert("delete action");
                 };
             });
             window.location.href = "./PF.action.html";
         };
-        window.onkeydown = function() {
-            if (event.keyCode == 27) {
-                if (Expand == true) {
-                    OpenClose(select);
-                } else {
-                    window.location.href = "./PF.choose.action.html";
-                }
-            };
-            if (!Expand) {
-                if ((event.keyCode == 40 || event.keyCode == 83) && select < data["action"].length) {
-                    select++;
-                } else if ((event.keyCode == 38 || event.keyCode == 87) && select > 0) {
-                    select--;
-                }
-                if (select >= 0 && select <= data["action"].length - 1) {
-                    action_s[select].style = "background-color:rgb(255, 255, 255);padding:1px;margin-bottom:5px;text-align:center;";
-                    document.getElementById("AddNewAction").style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
-                } else if (select == data["action"].length) {
-                    document.getElementById("AddNewAction").style = "background-color:rgb(255,255,255);padding:1px;margin-bottom:5px;text-align:center;";
-                }
+        var temp_sava = function() {
+            from_action[action_select] = data_view.from_action;
+            auto_play_action[action_select] = data_view.auto_play_action;
+            cmd_code[action_select] = data_view.cmd_code;
 
-                document.body.scrollTop = select * 84; //控制卷軸位置
-                if (select > 0) {
-                    action_s[select - 1].style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
-                }
-                if (select < data["action"].length - 1) {
-                    action_s[select + 1].style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
-                }
-                if (select == data["action"].length) {
-                    action_s[data["action"].length - 1].style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
-                }
-            };
-            if (event.keyCode == 13) {
-                if (select < data["action"].length) {
-                    OpenClose(select);
-                } else {
-                    AddNewAction();
-                }
+            Mode[action_select] = data_view.Mode;
+            Ability[action_select] = data_view.Ability;
+            stage.removeChild(__Ability__[action_select]);
+            __Ability__[action_select] = Make_Animation(Ability[action_select].split("."), Ability_pic, stage);
+            __Ability__[action_select].gotoAndPlay(0);
+            __Ability__[action_select].visible = true;
+            stage.removeChild(__Mode__[action_select]);
+            __Mode__[action_select] = Make_Animation(Mode[action_select].split("."), Mode_pic, stage);
+            __Mode__[action_select].gotoAndPlay(0);
+            __Mode__[action_select].visible = true;
+
+            limit_time[action_select] = data_view.limit_time;
+            hold_key[action_select] = data_view.hold_key;
+            combos_status[action_select] = data_view.combos_status;
+            what_time_to_combo[action_select] = data_view.what_time_to_combo;
+            speed.x[action_select] = data_view.speed_x;
+            speed.y[action_select] = data_view.speed_y;
+            faceTo[action_select] = data_view.faceTo;
+            Change.HP[action_select] = data_view.Change_HP;
+            Change.MP[action_select] = data_view.Change_MP;
+            Change.action[action_select] = data_view.Change_action;
+            note[action_select] = data_view.note;
+        };
+        var close = function() {
+            data_view.from_action_open = false;
+            data_view.auto_play_action_open = false;
+            data_view.cmd_code_open = false;
+            data_view.Mode_open = false;
+            data_view.Ability_open = false;
+            data_view.limit_time_open = false;
+            data_view.what_time_to_combo_open = false;
+            data_view.speed_x_open = false;
+            data_view.speed_y_open = false;
+            data_view.faceTo_open = false;
+            data_view.Change_HP_open = false;
+            data_view.Change_MP_open = false;
+            data_view.Change_action_open = false;
+            data_view.note_open = false;
+        };
+        var from_action_open = function() {
+            temp_sava();
+            if (data_view.from_action_open == true) {
+                close();
+            } else {
+                close();
+                data_view.from_action_open = true;
             }
-        }
+        };
+        var auto_play_action_open = function() {
+            temp_sava();
+            if (data_view.auto_play_action_open == true) {
+                close();
+            } else {
+                close();
+                data_view.auto_play_action_open = true;
+            }
+        };
+        var cmd_code_open = function() {
+            temp_sava();
+            if (data_view.cmd_code_open == true) {
+                close();
+            } else {
+                close();
+                data_view.cmd_code_open = true;
+            }
+        };
+        var Mode_open = function() {
+            temp_sava();
+            if (data_view.Mode_open == true) {
+                close();
+            } else {
+                close();
+                data_view.Mode_open = true;
+            }
+        };
+        var Ability_open = function() {
+            temp_sava();
+            if (data_view.Ability_open == true) {
+                close();
+            } else {
+                close();
+                data_view.Ability_open = true;
+            }
+        };
+        var limit_time_open = function() {
+            temp_sava();
+            if (data_view.limit_time_open == true) {
+                close();
+            } else {
+                close();
+                data_view.limit_time_open = true;
+            }
+        };
+        var hold_key_choose = function() {
+            if (data_view.hold_key == true) {
+                data_view.hold_key = false;
+            } else {
+                data_view.hold_key = true;
+            }
+            temp_sava();
+        };
+        var combos_status_choose = function() {
+            if (data_view.combos_status == true) {
+                data_view.combos_status = false;
+            } else {
+                data_view.combos_status = true;
+            }
+            temp_sava();
+        };
+        var what_time_to_combo_open = function() {
+            temp_sava();
+            if (data_view.what_time_to_combo_open == true) {
+                close();
+            } else {
+                close();
+                data_view.what_time_to_combo_open = true;
+            }
+        };
+        var speed_x_open = function() {
+            temp_sava();
+            if (data_view.speed_x_open == true) {
+                close();
+            } else {
+                close();
+                data_view.speed_x_open = true;
+            }
+        };
+        var speed_y_open = function() {
+            temp_sava();
+            if (data_view.speed_y_open == true) {
+                close();
+            } else {
+                close();
+                data_view.speed_y_open = true;
+            }
+        };
+        var faceTo_open = function() {
+            temp_sava();
+            if (data_view.faceTo_open == true) {
+                close();
+            } else {
+                close();
+                data_view.faceTo_open = true;
+            }
+        };
+        var Change_HP_open = function() {
+            temp_sava();
+            if (data_view.Change_HP_open == true) {
+                close();
+            } else {
+                close();
+                data_view.Change_HP_open = true;
+            }
+        };
+        var Change_MP_open = function() {
+            temp_sava();
+            if (data_view.Change_MP_open == true) {
+                close();
+            } else {
+                close();
+                data_view.Change_MP_open = true;
+            }
+        };
+        var Change_action_open = function() {
+            temp_sava();
+            if (data_view.Change_action_open == true) {
+                close();
+            } else {
+                close();
+                data_view.Change_action_open = true;
+            }
+        };
+        var note_open = function() {
+            temp_sava();
+            if (data_view.note_open == true) {
+                close();
+            } else {
+                close();
+                data_view.note_open = true;
+            }
+        };
     </script>
 </body>
 

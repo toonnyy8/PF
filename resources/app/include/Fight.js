@@ -16,7 +16,11 @@ exports.Fight = function(x) {
         renderer.renderer.view.style = "";
     };
     let screenset = function() {
-        document.body.appendChild(renderer.renderer.view); // 連結至網頁
+        if (document.getElementById("FIGHT") != undefined) {
+            document.getElementById("FIGHT").appendChild(renderer.renderer.view); // 連結至網頁
+        } else {
+            document.body.appendChild(renderer.renderer.view); // 連結至網頁
+        }
         //window.onload = function() { window.resizeTo(220 * x + 30, 120 * x + 60); };
         //window.onresize = function() { window.resizeTo(220 * x + 30, 120 * x + 60); };
     };
@@ -248,7 +252,7 @@ exports.Fight = function(x) {
 
             //**console.log(data["abilityPillar"][i]);
         };
-        let Make_Animation = function(Action_Animation_pic_num, Module, Animation_stage, multiple) {
+        let Make_Animation = function(Action_Animation_pic_num, Module, Animation_stage, multiple = 1) {
             let Action_Animation
             for (let i = 0; i < Action_Animation_pic_num.length; i++) {
                 Action_Animation_pic_num[i] = Module[Action_Animation_pic_num[i]];
@@ -750,7 +754,7 @@ exports.Fight = function(x) {
                     Shake();
                     renderer.stage.removeChild(VS_fight.MODE_stage);
                     renderer.stage.addChild(VS_fight.MODE_stage);
-                    THIS_fight.hurt(e.data[0]);
+                    THIS_fight.hurt(Number(e.data[0]));
                     VS_fight.attack();
                 }
             }

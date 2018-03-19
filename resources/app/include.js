@@ -7,7 +7,7 @@
 require('babel-polyfill');*/
 
 var screen_scale = 0.9;
-
+var Vue = require("./include/vue.js");
 var fs = require("fs");
 var PIXI = require("pixi.js");
 var keyboardJS = require("keyboardJS");

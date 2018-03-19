@@ -8,13 +8,13 @@
 </head>
 
 <body style="background-color:#000000;">
-    <!--<script>
+    <script>
         {
             /*******************************************
                 非同步式wasm調用
             *******************************************/
 
-            let fetchAndInstantiateWasm = function(url, imports) {
+            /*let fetchAndInstantiateWasm = function(url, imports) {
                 const {
                     webFrame
                 } = require('electron');
@@ -76,7 +76,7 @@
             fetchAndInstantiateWasm('./C2Wasm/test.wasm', {})
                 .then(m => {
                     console.log(m._test()); //用Emscripten 編譯生成的函數，會有 _作前綴，像test變 _test
-                });
+                });*/
         }
 
         {
@@ -106,13 +106,20 @@
                 return WebAssembly.Instance(WebAssembly.Module(wasm_code), imports).exports;
             }
 
-            console.log(WebAssembly_Loader("./resources/app/include/newtest/test.wasm").aaa(17, 8));
-            let test = new WebAssembly_Loader("./resources/app/include/newtest/test.wasm");
-            console.log(test.aaa(2, 3));
-            console.log(WebAssembly_Loader(path + "/C2Wasm/test.wasm")._test());
-
+            //console.log(WebAssembly_Loader("./resources/app/include/newtest/test.wasm").aaa(17, 8));
+            //let test = new WebAssembly_Loader("./resources/app/include/newtest/test.wasm");
+            //console.log(test.aaa(2, 3));
+            //console.log(WebAssembly_Loader(path + "/C2Wasm/test.wasm")._test());
+            let testArray = [1, 10, 1, 1];
+            console.log(WebAssembly_Loader(path + "/C2Wasm/test2.wasm", {
+                env: {
+                    _Log: (a) => {
+                        return testArray[a];
+                    }
+                }
+            })._test());
         }
-    </script>-->
+    </script>
     <script>
         keyboardJS.bind("esc", function() {
             window.location.href = "../../start.html";

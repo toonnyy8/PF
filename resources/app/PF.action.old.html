@@ -1,0 +1,387 @@
+<!doctype html>
+<html>
+
+<head>
+    <script src="./include.js"></script>
+    <link href=".\Flat-UI-master\dist\css\vendor\bootstrap\css\bootstrap.min.css" rel="stylesheet">
+    <link href=".\Flat-UI-master\dist\css\flat-ui.min.css" rel="stylesheet">
+    <script>
+        window.$ = window.jQuery = require("./Flat-UI-master/dist/js/vendor/jquery.min.js");
+    </script>
+    <script src="./Flat-UI-master/dist/js/flat-ui.min.js" rel="stylesheet"></script>
+    <script src="./Flat-UI-master/docs/assets/js/prettify.js" rel="stylesheet"></script>
+    <script src="./Flat-UI-master/docs/assets/js/application.js" rel="stylesheet"></script>
+    <meta charset="utf-8">
+    <title>Pixel Fighter</title>
+</head>
+
+
+<body style="background-color:#000000;">
+    <!--<script>
+        screenset = function(x = 1) {
+            window.onload = function() {
+                window.resizeTo(220 * x + 30, 121 * x + 60);
+            };
+            window.onresize = function() {
+                window.resizeTo(220 * x + 30, 121 * x + 60);
+            };
+        };
+
+        screenset(screen_scale * 8);
+    </script>-->
+
+    <script>
+        "use strict";
+        var action_s = [];
+
+        var from_action = [];
+        var cmd_code = [];
+        var limit_time = [];
+        var Mode = [];
+        var Ability = [];
+        var speed = {};
+        speed.x = [];
+        speed.y = [];
+        var hold_key = [];
+        var faceTo = [];
+        var what_time_to_combo = [];
+        var auto_play_action = [];
+        var Change = {};
+        Change.HP = [];
+        Change.MP = [];
+        Change.action = [];
+        var data = fs.readFileSync("./resources/app/chara/" + ipcRenderer.sendSync('ChooseAction') + "/player.json", 'utf8');
+        data = JSON.parse(data);
+        var temp;
+
+        for (var i = 0; i < data["action"].length; i++) {
+            temp = data["action"][i].split("_");
+            from_action[i] = temp[0];
+            cmd_code[i] = temp[1];
+            limit_time[i] = temp[2];
+            Mode[i] = temp[3];
+            Ability[i] = temp[4];
+            temp[5] = temp[5].split(".");
+            speed.x[i] = temp[5][0];
+            speed.y[i] = temp[5][1];
+            if (temp[6] == 1) {
+                hold_key[i] = true;
+            } else {
+                hold_key[i] = false;
+            }
+            faceTo[i] = temp[7];
+            what_time_to_combo[i] = temp[8];
+            auto_play_action[i] = temp[9];
+            temp[10] = temp[10].split(".");
+            Change.HP[i] = temp[10][0];
+            Change.MP[i] = temp[10][1];
+            Change.action[i] = temp[11];
+            temp = null;
+        }
+        document.write('<div style="text-align:center;">');
+        for (let i = 0; i < data["action"].length; i++) {
+            document.write('<a onclick="OpenClose(' + i + ');"><div id=' + i + ' style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;"></div></a>');
+            action_s[i] = document.getElementById(i);
+            action_s[i].innerHTML = '<h3 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">動作 : ' + i + '</h3>';
+
+            document.write('<div id="action' + i + '">');
+
+            document.write('<div class="input-group">' +
+                '<span class="input-group-addon">從n動作接續(ex:1.2.7.9)</span>' +
+                '<input id="from_action' + i + '" type="text" class="form-control" value="' + from_action[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
+                '</div>' +
+                '<div style="padding:10px;margin-bottom:5px;"></div>' +
+                '<div class="input-group">' +
+                '<span class="input-group-addon">要求按下的按鍵(以鍵名編寫,用.連接)</span>' +
+                '<input id="cmd_code' + i + '" type="text" class="form-control" value="' + cmd_code[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
+                '</div>' +
+                '<div style="padding:10px;margin-bottom:5px;"></div>' +
+                '<div class="input-group">' +
+                '<span class="input-group-addon">要求達成指令的時限(毫秒)</span>' +
+                '<input id="limit_time' + i + '" type="number" min="0" class="form-control" value="' + limit_time[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
+                '</div>' +
+                '<div style="padding:10px;margin-bottom:5px;"></div>' +
+                '<div class="input-group">' +
+                '<span class="input-group-addon">演出的動作(用.連接)</span>' +
+                '<input id="Mode' + i + '" type="text" class="form-control" value="' + Mode[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
+                '</div>' +
+                '<div style="padding:10px;margin-bottom:5px;"></div>' +
+                '<div class="input-group">' +
+                '<span class="input-group-addon">實際的判定圖(用.連接)</span>' +
+                '<input id="Ability' + i + '" type="text" class="form-control" value="' + Ability[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
+                '</div>' +
+                '<div style="padding:10px;margin-bottom:5px;"></div>' +
+                '<div class="input-group">' +
+                '<span class="input-group-addon">前後移動速度(向前為正，向後為負，不影響速度就不填)</span>' +
+                '<input id="speed_x' + i + '" type="number" class="form-control" value="' + speed.x[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
+                '</div>' +
+                '<div style="padding:10px;margin-bottom:5px;"></div>' +
+                '<div class="input-group">' +
+                '<span class="input-group-addon">上下移動速度(向上為正，向下為負，不影響速度就不填)</span>' +
+                '<input id="speed_y' + i + '" type="number" class="form-control" value="' + speed.y[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
+                '</div>' +
+                '<div style="padding:10px;margin-bottom:5px;"></div>' +
+                '<h6 style="color:rgb(255, 255, 255);font-family:Microsoft JhengHei;">' +
+                '<div class="bootstrap-switch-square">');
+            if (hold_key[i]) {
+                document.write('是否按住續力 : <input id="hold_key' + i + '" type="checkbox" checked data-toggle="switch" value="0" />');
+            } else {
+                document.write('是否按住續力 : <input id="hold_key' + i + '" type="checkbox" data-toggle="switch" value="0" />');
+            };
+            document.write('</div> </h6>' +
+                '<div style="padding:10px;margin-bottom:5px;"></div>' +
+                '<div class="input-group">' +
+                '<span class="input-group-addon">當面向特定方向才發動(右填0，左填1，都可發動就不填)</span>' +
+                '<input id="faceTo' + i + '" type="number" min="-1" max="0" class="form-control" value="' + faceTo[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
+                '</div>' +
+                '<div style="padding:10px;margin-bottom:5px;"></div>' +
+                '<div class="input-group">' +
+                '<span class="input-group-addon">動作撥放多少後可供接技(0~1=0%~100%)</span>' +
+                '<input id="what_time_to_combo' + i + '" type="number" min="0" max="1" class="form-control" value="' + what_time_to_combo[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
+                '</div>' +
+                '<div style="padding:10px;margin-bottom:5px;"></div>' +
+                '<div class="input-group">' +
+                '<span class="input-group-addon">撥放完後自動接續的動作(不填表示沒有)</span>' +
+                '<input id="auto_play_action' + i + '" type="number" min="0" class="form-control" value="' + auto_play_action[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
+                '</div>' +
+                '<div style="padding:10px;margin-bottom:5px;"></div>' +
+                '<h6 style="color:rgb(255, 255, 255);font-family:Microsoft JhengHei;">' +
+                '<div class="bootstrap-switch-square">');
+            if (data["combos_status"][i] == "null") {
+                document.write('是否回傳常駐狀態(變身用) : <input id="combos_status' + i + '" type="checkbox" checked data-toggle="switch" value="0" />');
+            } else {
+                document.write('是否回傳常駐狀態(變身用) : <input id="combos_status' + i + '" type="checkbox" data-toggle="switch" value="0" />');
+            };
+            document.write('</div> </h6>' +
+
+                '<div style="padding:10px;margin-bottom:5px;"></div>' +
+                '<div class="input-group">' +
+                '<span class="input-group-addon">發動動作所改變的HP(不足則無法發動，正增加，負減少)</span>' +
+                '<input id="Change_HP' + i + '" type="number" class="form-control" value="' + Change.HP[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
+                '</div>' +
+                '<div style="padding:10px;margin-bottom:5px;"></div>' +
+                '<div class="input-group">' +
+                '<span class="input-group-addon">發動動作所改變的MP(不足則無法發動，正增加，負減少)</span>' +
+                '<input id="Change_MP' + i + '" type="number" class="form-control" value="' + Change.MP[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
+                '</div>' +
+                '<div style="padding:10px;margin-bottom:5px;"></div>' +
+                '<div class="input-group">' +
+                '<span class="input-group-addon">受攻擊所改變的動作(不改變就不填)</span>' +
+                '<input id="Change_action' + i + '" type="number" min="0" class="form-control" value="' + Change.action[i] + '" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;" />' +
+                '</div>' +
+                '<div style="padding:10px;margin-bottom:5px;"></div>' +
+                '<div class="input-group">' +
+                '<span class="input-group-addon">動作註解</span>' +
+                '<textarea id="note' + i + '" rows="2" class="form-control" style="color:rgb(0, 62, 143);font-family:Microsoft JhengHei;"></textarea>' +
+                '</div>' +
+                '<div style="padding:10px;margin-bottom:5px;"></div>' +
+                '<input type="button" onclick="savedata(' + i + ');" class="btn btn-block btn-lg btn-info" value="儲存">' +
+                '<div style="padding:10px;margin-bottom:5px;"></div>' +
+                '<input type="button" onclick="deleteAction(' + i + ');" class="btn btn-block btn-lg btn-info" value="刪除">');
+
+            document.write('</div>');
+            document.getElementById("action" + i).style = "display: none";
+            document.getElementById("note" + i).value = data["note"][i];
+        };
+        document.write('<a onclick="AddNewAction();"><div id="AddNewAction" style="background-color:rgb(0, 0, 0);padding:1px;margin-bottom:5px;text-align:center;"></div></a>');
+        document.getElementById("AddNewAction").innerHTML = '<h3 style="color:rgb(255, 0, 85);font-family:Microsoft JhengHei;">新增動作</h3>';
+        document.write('</div>');
+        action_s[0].style = "background-color:rgb(255, 255, 255);padding:1px;margin-bottom:5px;text-align:center;";
+    </script>
+    <script>
+        "use strict";
+        let Expand = false; //是否有單項動作攔展開
+        var select = 0;
+        let OpenClose = function(n) {
+            select = n;
+            if (Expand) { //關閉動作攔
+                for (let i = 0; i < data["action"].length; i++) {
+                    if (i != select) {
+                        action_s[i].style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
+                        document.getElementById("action" + i).style = "display: none";
+                    } else {
+                        document.getElementById("action" + i).style = "display: none";
+                    };
+                };
+                document.getElementById("AddNewAction").style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
+                document.body.scrollTop = select * 84; //控制卷軸位置
+                Expand = false;
+            } else { //展開動作攔
+                for (let i = 0; i < data["action"].length; i++) {
+                    if (i != select) {
+                        action_s[i].style = "display: none";
+                        document.getElementById("action" + i).style = "display: none";
+                    } else {
+                        action_s[i].style = "background-color:rgb(255,255,255);padding:1px;margin-bottom:5px;text-align:center;";
+                        document.getElementById("action" + i).style = "";
+                    };
+                };
+                document.getElementById("AddNewAction").style = "display: none";
+                Expand = true;
+            }
+        }
+        let savedata = function(n) {
+            from_action[n] = document.getElementById("from_action" + n).value;
+            if (from_action[n] == "") {
+                from_action[n] = "null";
+            };
+            cmd_code[n] = document.getElementById("cmd_code" + n).value;
+            if (cmd_code[n] == "") {
+                cmd_code[n] = "null";
+            };
+            limit_time[n] = document.getElementById("limit_time" + n).value;
+            if (limit_time[n] == "") {
+                limit_time[n] = "250";
+            };
+            Mode[n] = document.getElementById("Mode" + n).value;
+            if (Mode[n] == "") {
+                Mode[n] = "0";
+            };
+            Ability[n] = document.getElementById("Ability" + n).value;
+            if (Ability[n] == "") {
+                Ability[n] = "0";
+            };
+            speed.x[n] = document.getElementById("speed_x" + n).value;
+            if (speed.x[n] == "") {
+                speed.x[n] = "null";
+            };
+            speed.y[n] = document.getElementById("speed_y" + n).value;
+            if (speed.y[n] == "") {
+                speed.y[n] = "null";
+            };
+            hold_key[n] = document.getElementById("hold_key" + n).checked;
+            if (hold_key[n] == true) {
+                hold_key[n] = "1";
+            } else {
+                hold_key[n] = "0";
+            };
+            faceTo[n] = document.getElementById("faceTo" + n).value;
+            if (faceTo[n] == "") {
+                faceTo[n] = "null";
+            };
+            what_time_to_combo[n] = document.getElementById("what_time_to_combo" + n).value;
+            if (what_time_to_combo[n] == "") {
+                what_time_to_combo[n] = "0";
+            };
+            auto_play_action[n] = document.getElementById("auto_play_action" + n).value;
+            if (auto_play_action[n] == "") {
+                auto_play_action[n] = "null";
+            };
+            Change.HP[n] = document.getElementById("Change_HP" + n).value;
+            if (Change.HP[n] == "") {
+                Change.HP[n] = "0";
+            };
+            Change.MP[n] = document.getElementById("Change_MP" + n).value;
+            if (Change.MP[n] == "") {
+                Change.MP[n] = "0";
+            };
+            Change.action[n] = document.getElementById("Change_action" + n).value;
+            if (Change.action[n] == "") {
+                Change.action[n] = "null";
+            };
+            data["action"][n] = from_action[n] + '_' +
+                cmd_code[n] + '_' +
+                limit_time[n] + '_' +
+                Mode[n] + '_' +
+                Ability[n] + '_' +
+                speed.x[n] + '.' +
+                speed.y[n] + '_' +
+                hold_key[n] + '_' +
+                faceTo[n] + '_' +
+                what_time_to_combo[n] + '_' +
+                auto_play_action[n] + '_' +
+                Change.HP[n] + '.' +
+                Change.MP[n] + '_' +
+                Change.action[n];
+            if (document.getElementById("combos_status" + n).checked) {
+                data["combos_status"][n] = "null";
+            } else {
+                data["combos_status"][n] = "" + n;
+            }
+            data["note"][n] = document.getElementById("note" + n).value
+            fs.writeFile("./resources/app/chara/" + ipcRenderer.sendSync('ChooseAction') + "/player.json", JSON.stringify(data), function(err) {
+                if (err) {
+                    console.log(err);
+                    alert(err);
+                } else {
+                    console.log("save player.json");
+                };
+            });
+        };
+        let AddNewAction = function() {
+            data["note"][data["action"].length] = "";
+            data["combos_status"][data["action"].length] = "" + data["action"].length;
+            data["action"][data["action"].length] = "null_null_250_0_0_null.null_0_null_0_null_0.0_null";
+            fs.writeFile("./resources/app/chara/" + ipcRenderer.sendSync('ChooseAction') + "/player.json", JSON.stringify(data), function(err) {
+                if (err) {
+                    console.log(err);
+                    alert(err);
+                } else {
+                    console.log("save player.json");
+                };
+            });
+            window.location.href = "./PF.action.html";
+        };
+        let deleteAction = function(n) {
+            data["combos_status"].splice(n, 1);
+            for (let i = 0; i < data["combos_status"].length; i++) {
+                if (data["combos_status"][i] != "null") {
+                    data["combos_status"][i] = "" + i;
+                };
+            };
+            data["note"].splice(n, 1);
+            data["action"].splice(n, 1);
+            fs.writeFile("./resources/app/chara/" + ipcRenderer.sendSync('ChooseAction') + "/player.json", JSON.stringify(data), function(err) {
+                if (err) {
+                    console.log(err);
+                    alert(err);
+                } else {
+                    console.log("save player.json");
+                };
+            });
+            window.location.href = "./PF.action.html";
+        };
+        window.onkeydown = function() {
+            if (event.keyCode == 27) {
+                if (Expand == true) {
+                    OpenClose(select);
+                } else {
+                    window.location.href = "./PF.choose.action.html";
+                }
+            };
+            if (!Expand) {
+                if ((event.keyCode == 40 || event.keyCode == 83) && select < data["action"].length) {
+                    select++;
+                } else if ((event.keyCode == 38 || event.keyCode == 87) && select > 0) {
+                    select--;
+                }
+                if (select >= 0 && select <= data["action"].length - 1) {
+                    action_s[select].style = "background-color:rgb(255, 255, 255);padding:1px;margin-bottom:5px;text-align:center;";
+                    document.getElementById("AddNewAction").style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
+                } else if (select == data["action"].length) {
+                    document.getElementById("AddNewAction").style = "background-color:rgb(255,255,255);padding:1px;margin-bottom:5px;text-align:center;";
+                }
+
+                document.body.scrollTop = select * 84; //控制卷軸位置
+                if (select > 0) {
+                    action_s[select - 1].style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
+                }
+                if (select < data["action"].length - 1) {
+                    action_s[select + 1].style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
+                }
+                if (select == data["action"].length) {
+                    action_s[data["action"].length - 1].style = "background-color:rgb(0,0,0);padding:1px;margin-bottom:5px;text-align:center;";
+                }
+            };
+            if (event.keyCode == 13) {
+                if (select < data["action"].length) {
+                    OpenClose(select);
+                } else {
+                    AddNewAction();
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
