@@ -11,12 +11,12 @@
         "package": "asar pack PF/resources/app PF/resources/app.asar && del PF/resources/app"
     },
     "dependencies": {
-        "electron": "^1.8.2",
+        "electron": "^1.8.4",
         "electron-packager": "^10.1.2",
-        "gpu.js": "^1.0.0",
+        "gpu.js": "^1.2.0",
         "keyboardjs": "^2.4.1",
         "pixi-keyboard": "^0.9.4",
-        "pixi.js": "^4.7.0",
+        "pixi.js": "^4.7.1",
         "screenfull": "^3.3.2"
     },
     "devDependencies": {
