@@ -5,7 +5,7 @@ exports.Editor = function(x) {
     {
         //x *= 8;
         x = x - x % 0.01;
-        var renderer = new PIXI.Application(220 * x, 121 * x, { transparent: true }); //設置渲染器
+        var renderer = new PIXI.Application(320 * x, 181 * x, { transparent: true }); //設置渲染器
         //renderer.renderer.view.style = "display:none"; <--可以隱藏renderer
         //renderer.renderer.view.style = ""; <--可以顯示renderer
         this.editor_close = function() {
@@ -17,12 +17,12 @@ exports.Editor = function(x) {
         /****/
         var stage = new PIXI.Container(); //設置容器
         var Ability_stage = new PIXI.Container(); //設置能力值容器
-        var Pixels = [220];
-        var Pillar_bar = [220]; //中心點
-        for (var i = 0; i * x < 220 * x; i++) {
-            Pixels[i] = [120];
+        var Pixels = [320];
+        var Pillar_bar = [320]; //中心點
+        for (var i = 0; i * x < 320 * x; i++) {
+            Pixels[i] = [180];
             Pillar_bar[i] = [4];
-            for (var j = 0; j * x < 120 * x; j++) {
+            for (var j = 0; j * x < 180 * x; j++) {
                 Pixels[i][j] = [4]; //i,j代表Pixels[i][j][k]的座標位置，k=0設定Pixels[i][j][0] = new PIXI.Graphics().k=1紀錄顏色.k=2設定Pixels[i][j][2] = new PIXI.Graphics().k=3紀錄屬性(攻擊/防禦/身體/無).k=4紀錄所有人(P1.P2.GB)
                 Pixels[i][j][0] = new PIXI.Graphics();
                 Pixels[i][j][1] = 0xcccccc;
@@ -40,31 +40,35 @@ exports.Editor = function(x) {
             stage.addChild(Pillar_bar[i][0]);
             Pillar_bar[i][1] = 0x000000;
             Pillar_bar[i][0].beginFill(Pillar_bar[i][1], 1);
-            Pillar_bar[i][0].drawRect(i * x, 120 * x, x, x);
+            Pillar_bar[i][0].drawRect(i * x, 180 * x, x, x);
             /***/
             Pillar_bar[i][2] = new PIXI.Graphics(); //Ability_sharder用的中心軸
             Ability_stage.addChild(Pillar_bar[i][2]);
             Pillar_bar[i][3] = 0x000000;
             Pillar_bar[i][2].beginFill(Pillar_bar[i][3], 1);
-            Pillar_bar[i][2].drawRect(i * x, 120 * x, x, x);
+            Pillar_bar[i][2].drawRect(i * x, 180 * x, x, x);
         };
-        Pillar_bar[110][1] = 0xffffff;
-        Pillar_bar[110][0].beginFill(Pillar_bar[110][1], 1);
-        Pillar_bar[110][0].drawRect(110 * x, 120 * x, x, x);
-        Pillar_bar[110][3] = 0xffffff;
-        Pillar_bar[110][2].beginFill(Pillar_bar[110][3], 1);
-        Pillar_bar[110][2].drawRect(110 * x, 120 * x, x, x);
+        Pillar_bar[160][1] = 0xffffff;
+        Pillar_bar[160][0].beginFill(Pillar_bar[160][1], 1);
+        Pillar_bar[160][0].drawRect(160 * x, 180 * x, x, x);
+        Pillar_bar[160][3] = 0xffffff;
+        Pillar_bar[160][2].beginFill(Pillar_bar[160][3], 1);
+        Pillar_bar[160][2].drawRect(160 * x, 180 * x, x, x);
     }
     /****/
     let screenset = function() {
-        document.body.appendChild(renderer.renderer.view); // 連結至網頁
-        //window.onload = function () { window.resizeTo(220 * x + 30, 121 * x + 60); };
-        //window.onresize = function () { window.resizeTo(220 * x + 30, 121 * x + 60); };
+        if (document.getElementById("EDITOR") != undefined) {
+            document.getElementById("EDITOR").appendChild(renderer.renderer.view); // 連結至網頁
+        } else {
+            document.body.appendChild(renderer.renderer.view); // 連結至網頁
+        };
+        //window.onload = function () { window.resizeTo(320 * x + 30, 181 * x + 60); };
+        //window.onresize = function () { window.resizeTo(320 * x + 30, 181 * x + 60); };
     };
     screenset();
     /****/
     this.Chara_sharder = function(i = 0, j = 0, color, nib_size = 2, transparency = 1) {
-        if (j != 120) {
+        if (j != 180) {
             for (var _i = 0; _i < nib_size; _i++) { //筆尖大小
                 for (var _j = 0; _j < nib_size; _j++) {
                     if (color != undefined) {
@@ -80,23 +84,23 @@ exports.Editor = function(x) {
                 };
             };
         } else {
-            for (var k = 0; k < 220; k++) {
+            for (var k = 0; k < 320; k++) {
                 if (Pillar_bar[k][1] != 0x000000) {
                     Pillar_bar[k][1] = 0x000000;
                     Pillar_bar[k][0].beginFill(Pillar_bar[k][1]);
-                    Pillar_bar[k][0].drawRect(k * x, 120 * x, x, x);
+                    Pillar_bar[k][0].drawRect(k * x, 180 * x, x, x);
                 };
             };
             Pillar_bar[i][1] = 0xffffff;
             Pillar_bar[i][0].beginFill(Pillar_bar[i][1]);
-            Pillar_bar[i][0].drawRect(i * x, 120 * x, x, x);
+            Pillar_bar[i][0].drawRect(i * x, 180 * x, x, x);
         }
         renderer.stage.addChild(stage);
         renderer.stage.removeChild(Ability_stage);
     };
     /****/
     this.Ability_sharder = function(i = 0, j = 0, Ability, nib_size = 2, transparency = 1) {
-        if (j != 120) {
+        if (j != 180) {
             for (var _i = 0; _i < nib_size; _i++) { //筆尖大小
                 for (var _j = 0; _j < nib_size; _j++) {
                     if (Ability != undefined) {
@@ -112,16 +116,16 @@ exports.Editor = function(x) {
                 };
             };
         } else {
-            for (var k = 0; k < 220; k++) {
+            for (var k = 0; k < 320; k++) {
                 if (Pillar_bar[k][3] != 0x000000) {
                     Pillar_bar[k][3] = 0x000000;
                     Pillar_bar[k][2].beginFill(Pillar_bar[k][3]);
-                    Pillar_bar[k][2].drawRect(k * x, 120 * x, x, x);
+                    Pillar_bar[k][2].drawRect(k * x, 180 * x, x, x);
                 };
             };
             Pillar_bar[i][3] = 0xffffff;
             Pillar_bar[i][2].beginFill(Pillar_bar[i][3]);
-            Pillar_bar[i][2].drawRect(i * x, 120 * x, x, x);
+            Pillar_bar[i][2].drawRect(i * x, 180 * x, x, x);
         }
         renderer.stage.addChild(Ability_stage);
         renderer.stage.removeChild(stage);
@@ -131,14 +135,14 @@ exports.Editor = function(x) {
         var fileName = ".png"; //匯出的檔名
         var file_num = 0;
         var pillar_num = 0;
-        renderer.renderer.resize(440, 120);
+        renderer.renderer.resize(640, 180);
         if (file_type == 'mode') {
             for (file_num = 0; fs.existsSync("./resources/app/chara/player1/mode/" + file_num + fileName); file_num++) {};
             fileName = file_num + fileName;
             this.Chara_sharder(0, 0, undefined, 4, 0);
             stage.width /= x;
             stage.height /= x;
-            stage.x = 220;
+            stage.x = 320;
             renderer.renderer.render(stage);
             fs.writeFile("./resources/app/chara/player1/mode/" + fileName, new Buffer(renderer.renderer.view.toDataURL().replace(/^[^,]+,/, ""), "base64"), function(err) {
                 if (err) {
@@ -149,7 +153,7 @@ exports.Editor = function(x) {
                     alert("save " + fileName + ".png in ./resources/app/chara/player1/mode/");
                 }
             });
-            renderer.renderer.resize(220 * x, 121 * x);
+            renderer.renderer.resize(320 * x, 181 * x);
             this.Chara_sharder(0, 0, undefined, 4, 1);
             stage.width *= x;
             stage.height *= x;
@@ -162,7 +166,7 @@ exports.Editor = function(x) {
             this.Ability_sharder(0, 0, undefined, 4, 0);
             Ability_stage.width /= x;
             Ability_stage.height /= x;
-            Ability_stage.x = 220;
+            Ability_stage.x = 320;
             renderer.renderer.render(Ability_stage);
             fs.writeFile("./resources/app/chara/player1/ability/" + fileName, new Buffer(renderer.renderer.view.toDataURL().replace(/^[^,]+,/, ""), "base64"), function(err) {
                 if (err) {
@@ -173,7 +177,7 @@ exports.Editor = function(x) {
                     alert("save " + fileName + " in ./resources/app/chara/player1/ability/");
                 }
             });
-            renderer.renderer.resize(220 * x, 121 * x);
+            renderer.renderer.resize(320 * x, 181 * x);
             this.Ability_sharder(0, 0, undefined, 4, 1);
             Ability_stage.width *= x;
             Ability_stage.height *= x;
@@ -313,7 +317,9 @@ exports.Editor = function(x) {
                 transparency = 1;
             } else if (keycode == 103 || keycode == 81) { //7，Q
                 Chara_sharder(0, 0, red + green + blue, nib, 0);
-                nib = 1;; //筆尖大小=1*1
+                if (nib > 1) {
+                    nib -= 1;; //筆尖變小
+                };
                 mouse(red + green + blue, nib); //著色
             } else if (keycode == 104 || keycode == 87) { //8，W
                 Chara_sharder(0, 0, red + green + blue, nib, 0);
@@ -321,7 +327,9 @@ exports.Editor = function(x) {
                 mouse(red + green + blue, nib); //著色
             } else if (keycode == 105 || keycode == 69) { //9,E
                 Chara_sharder(0, 0, red + green + blue, nib, 0);
-                nib = 4;; //筆尖大小=4*4
+                if (nib < 15) {
+                    nib += 1;; //筆尖變大
+                };
                 mouse(red + green + blue, nib); //著色
             } else {
                 window.onmousedown = function() {};
@@ -422,7 +430,9 @@ exports.Editor = function(x) {
                 transparency = 1;
             } else if (keycode == 103 || keycode == 81) { //7，q
                 Ability_sharder(0, 0, red + green + blue, nib, 0);
-                nib = 1;; //筆尖大小=1*1
+                if (nib > 1) {
+                    nib -= 1;; //筆尖變小
+                };
                 mouse(red + green + blue, nib); //著色
             } else if (keycode == 104 || keycode == 87) { //8，w
                 Ability_sharder(0, 0, red + green + blue, nib, 0);
@@ -430,7 +440,9 @@ exports.Editor = function(x) {
                 mouse(red + green + blue, nib); //著色
             } else if (keycode == 105 || keycode == 69) { //9，e
                 Ability_sharder(0, 0, red + green + blue, nib, 0);
-                nib = 4;; //筆尖大小=4*4
+                if (nib < 15) {
+                    nib += 1;; //筆尖變大
+                };
                 mouse(red + green + blue, nib); //著色
             } else if (keycode == 27) { //esc
                 return 0;

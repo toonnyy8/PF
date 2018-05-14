@@ -8,11 +8,13 @@
 </head>
 
 <body style="background-color:#555555;">
+    <!--<div id="EDITOR" style="text-align:center;"></div>-->
     <script defer>
-        if (document.body.offsetWidth / 220 < (document.body.scrollHeight - 20) / 121) {
-            screen_scale = document.body.offsetWidth / 220;
+        document.body.style.overflow = 'hidden';
+        if (document.body.offsetWidth / 320 < (document.body.scrollHeight - 15) / 181) {
+            screen_scale = document.body.offsetWidth / 320;
         } else {
-            screen_scale = (document.body.scrollHeight - 20) / 121;
+            screen_scale = (document.body.scrollHeight - 15) / 181;
         }
         console.log(screen_scale);
         main.editor.main(screen_scale);

@@ -1,6 +1,6 @@
 //主程式
 /// <reference path=".\typings\globals\pixi.js\index.d.ts" />
-exports.main = function(x = 1, fighter_name_1 = 'player1', fighter_name_2 = 'player1', background_name = 'background', stand_1 = 50, stand_2 = 170) {
+exports.main = function(x = 1, fighter_name_1 = 'player1', fighter_name_2 = 'player1', background_name = 'background', stand_1 = 50, stand_2 = 270) {
     /*
      *建置對戰控制器
      */

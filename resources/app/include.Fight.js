@@ -12,7 +12,6 @@ var fs = require("fs");
 var PIXI = require("pixi.js");
 var keyboardJS = require("keyboardJS");
 var keytransform = new require("./include/keytransform.js");
-var GPU = require("gpu.js");
 var Fight = require("./include/Fight.js");
 var main = {};
 main.fight = require("./include/main.fight.js");

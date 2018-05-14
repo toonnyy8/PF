@@ -5,7 +5,7 @@ exports.Fight = function(x) {
     //x *= 8;
     console.log(x);
 
-    var renderer = new PIXI.Application(220 * x, 120 * x, { transparent: true }); //設置渲染器
+    var renderer = new PIXI.Application(320 * x, 180 * x, { transparent: true }); //設置渲染器
     //renderer.renderer.view.style = "display:none"; <--可以隱藏renderer
     //renderer.renderer.view.style = ""; <--可以顯示renderer
 
@@ -21,8 +21,8 @@ exports.Fight = function(x) {
         } else {
             document.body.appendChild(renderer.renderer.view); // 連結至網頁
         }
-        //window.onload = function() { window.resizeTo(220 * x + 30, 120 * x + 60); };
-        //window.onresize = function() { window.resizeTo(220 * x + 30, 120 * x + 60); };
+        //window.onload = function() { window.resizeTo(320 * x + 30, 180 * x + 60); };
+        //window.onresize = function() { window.resizeTo(320 * x + 30, 180 * x + 60); };
     };
     screenset();
     /****/
@@ -32,7 +32,7 @@ exports.Fight = function(x) {
         let MODE_stage = this.MODE_stage = new PIXI.Container(); //設置容器
         let ABILITY_stage = new PIXI.Container(); //設置容器
         this.fps = fps;
-        var Ability_renderer = new PIXI.Application(220, 120, { transparent: true });
+        var Ability_renderer = new PIXI.Application(320, 180, { transparent: true });
         this.Read_Ability_renderer = function() {
             return Ability_renderer;
         };
@@ -43,7 +43,7 @@ exports.Fight = function(x) {
         this.fighter_Ability_open = function() {
             Ability_renderer.renderer.view.style = "";
         };
-        //stand_vector -= 220; //人物位置
+        //stand_vector -= 320; //人物位置
         this.stand_vector = function(set_stand_vector = null) {
             if (set_stand_vector != null) {
                 stand_vector = set_stand_vector;
@@ -232,7 +232,7 @@ exports.Fight = function(x) {
             Mode[i] = PIXI.Texture.fromImage("./chara/" + fighter_name + "/mode/" + i + ".png");
             Mode[i].baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST; //將導入的圖片以像素模式縮放
 
-            var rectangle = new PIXI.Rectangle(data["modePillar"][i] * x, 0, (440 - data["modePillar"][i]) * x, 120 * x);
+            var rectangle = new PIXI.Rectangle(data["modePillar"][i] * x, 0, (640 - data["modePillar"][i]) * x, 180 * x);
             Mode[i] = new PIXI.Texture(Mode[i], rectangle);
             Mode[i].baseTexture.resolution = Math.floor((1 / x) * 10000000000) / 10000000000;
             if (data["Mode_size"] != undefined) {
@@ -247,7 +247,7 @@ exports.Fight = function(x) {
             Ability[i] = PIXI.Texture.fromImage("./chara/" + fighter_name + "/ability/" + i + ".png");
             Ability[i].baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST; //將導入的圖片以像素模式縮放
 
-            var rectangle = new PIXI.Rectangle(data["abilityPillar"][i], 0, (440 - data["abilityPillar"][i]), 120);
+            var rectangle = new PIXI.Rectangle(data["abilityPillar"][i], 0, (640 - data["abilityPillar"][i]), 180);
             Ability[i] = new PIXI.Texture(Ability[i], rectangle);
 
             //**console.log(data["abilityPillar"][i]);
@@ -260,7 +260,7 @@ exports.Fight = function(x) {
             Action_Animation_pic_num[Action_Animation_pic_num.length] = Action_Animation_pic_num[Action_Animation_pic_num.length - 1];
             Action_Animation = new PIXI.extras.AnimatedSprite(Action_Animation_pic_num);
             Action_Animation.animationSpeed = fps / 60;
-            Action_Animation.x = -220 * multiple;
+            Action_Animation.x = -320 * multiple;
             Animation_stage.addChild(Action_Animation);
             Action_Animation.visible = false;
             return Action_Animation;
@@ -328,11 +328,11 @@ exports.Fight = function(x) {
                     MODE_stage.x = 0;
                     ABILITY_stage.x = 0;
                     stand_vector = 0;
-                } else if (stand_vector > 220) {
+                } else if (stand_vector > 320) {
                     speed[0] = 0;
-                    MODE_stage.x = 220 * x;
-                    ABILITY_stage.x = 220;
-                    stand_vector = 220;
+                    MODE_stage.x = 320 * x;
+                    ABILITY_stage.x = 320;
+                    stand_vector = 320;
                 };
                 if (faceTo == 0) {
                     stand_vector += Number(speed[0]) * delta;
@@ -864,7 +864,7 @@ exports.Fight = function(x) {
                 //dropShadowAngle: x / 3,
                 dropShadowDistance: x * 3 / 4,
                 wordWrap: false,
-                wordWrapWidth: 440
+                wordWrapWidth: 640
             });
 
             let fighter1_NAME_text = new PIXI.Text(fighter1.fighter_name, style);
@@ -874,7 +874,7 @@ exports.Fight = function(x) {
             renderer.stage.addChild(fighter1_NAME_text);
 
             let fighter2_NAME_text = new PIXI.Text(fighter2.fighter_name, style);
-            fighter2_NAME_text.x = 155 * x;
+            fighter2_NAME_text.x = 255 * x;
             fighter2_NAME_text.y = 22 * x;
             fighter2_NAME_text.anchor.set(0.5);
             renderer.stage.addChild(fighter2_NAME_text);
@@ -911,13 +911,13 @@ exports.Fight = function(x) {
             fighter2_HP[0] = new PIXI.Graphics();
             renderer.stage.addChild(fighter2_HP[0]);
             fighter2_HP[0].beginFill(0, 1);
-            fighter2_HP[0].drawRect(120.4 * x, 5.4 * x, 69.2 * x, 4.2 * x);
+            fighter2_HP[0].drawRect(220.4 * x, 5.4 * x, 69.2 * x, 4.2 * x);
 
             fighter2_HP[1] = new PIXI.Graphics();
             renderer.stage.addChild(fighter2_HP[1]);
             fighter2_HP[1].beginFill(0x222255, 1);
             fighter2_HP[1].drawRect(0, 0, 68 * x, 3 * x);
-            fighter2_HP[1].x = 121 * x;
+            fighter2_HP[1].x = 221 * x;
             fighter2_HP[1].y = 6 * x;
             fighter2_HP[1].width = 0;
 
@@ -925,7 +925,7 @@ exports.Fight = function(x) {
             renderer.stage.addChild(fighter2_HP[2]);
             fighter2_HP[2].beginFill(0xff2222, 1);
             fighter2_HP[2].drawRect(0, 0, 68 * x, 3 * x);
-            fighter2_HP[2].x = 121 * x;
+            fighter2_HP[2].x = 221 * x;
             fighter2_HP[2].y = 6 * x;
             fighter2_HP[2].width = 0;
             /****************/
@@ -953,13 +953,13 @@ exports.Fight = function(x) {
             fighter2_MP[0] = new PIXI.Graphics();
             renderer.stage.addChild(fighter2_MP[0]);
             fighter2_MP[0].beginFill(0, 1);
-            fighter2_MP[0].drawRect(120.4 * x, 12.4 * x, 69.2 * x, 2.2 * x);
+            fighter2_MP[0].drawRect(220.4 * x, 12.4 * x, 69.2 * x, 2.2 * x);
 
             fighter2_MP[1] = new PIXI.Graphics();
             renderer.stage.addChild(fighter2_MP[1]);
             fighter2_MP[1].beginFill(0x222255, 1);
             fighter2_MP[1].drawRect(0, 0, 68 * x, 1 * x);
-            fighter2_MP[1].x = 121 * x;
+            fighter2_MP[1].x = 221 * x;
             fighter2_MP[1].y = 13 * x;
             fighter2_MP[1].width = 0;
 
@@ -967,14 +967,14 @@ exports.Fight = function(x) {
             renderer.stage.addChild(fighter2_MP[2]);
             fighter2_MP[2].beginFill(0x5555ff, 1);
             fighter2_MP[2].drawRect(0, 0, 68 * x, 1 * x);
-            fighter2_MP[2].x = 121 * x;
+            fighter2_MP[2].x = 221 * x;
             fighter2_MP[2].y = 13 * x;
             fighter2_MP[2].width = 0;
             /****************/
-            fighter1.avatar.x = (fighter1.stand_vector() - 220) * x / 4;
+            fighter1.avatar.x = (fighter1.stand_vector() - 320) * x / 4;
             renderer.stage.addChild(fighter1.avatar);
             fighter2.avatar.scale.set(-1 / 4, 1 / 4);
-            fighter2.avatar.x = 220 * x + (fighter2.stand_vector() * x / 4);
+            fighter2.avatar.x = 320 * x + (fighter2.stand_vector() * x / 4);
             renderer.stage.addChild(fighter2.avatar);
             /****************/
             let HPMP__UI;
@@ -989,7 +989,7 @@ exports.Fight = function(x) {
                     fighter1_HP[1].width = 0;
                 }
                 /*****************/
-                fighter2_HP[2].x = 121 * x + 68 * x * (fighter2.HP()[0] - fighter2.HP()[1]) / fighter2.HP()[0];
+                fighter2_HP[2].x = 221 * x + 68 * x * (fighter2.HP()[0] - fighter2.HP()[1]) / fighter2.HP()[0];
                 fighter2_HP[2].width = 68 * x * (1 - ((fighter2.HP()[0] - fighter2.HP()[1]) / fighter2.HP()[0]));
                 if (fighter2_HP[1].width > fighter2_HP[2].width && fighter2_HP[1].width > 0) {
                     fighter2_HP[1].x += 0.5 * x;
@@ -1012,7 +1012,7 @@ exports.Fight = function(x) {
                     fighter1_MP[1].width = 0;
                 }
                 /*****************/
-                fighter2_MP[2].x = 121 * x + 68 * x * (fighter2.MP()[0] - fighter2.MP()[1]) / fighter2.MP()[0];
+                fighter2_MP[2].x = 221 * x + 68 * x * (fighter2.MP()[0] - fighter2.MP()[1]) / fighter2.MP()[0];
                 fighter2_MP[2].width = 68 * x * (1 - ((fighter2.MP()[0] - fighter2.MP()[1]) / fighter2.MP()[0]));
                 if (fighter2_MP[1].width > fighter2_MP[2].width && fighter2_MP[1].width > 0) {
                     fighter2_MP[1].x += 0.5 * x;
@@ -1041,7 +1041,7 @@ exports.Fight = function(x) {
                 //dropShadowAngle: x / 3,
                 dropShadowDistance: x * 3 / 4,
                 wordWrap: false,
-                wordWrapWidth: 440
+                wordWrapWidth: 640
             });
             let KO__check;
             renderer.ticker.add(KO__check = async function() {
@@ -1054,7 +1054,7 @@ exports.Fight = function(x) {
                     } else if (fighter1.HP()[1] != 0 && fighter2.HP()[1] == 0) {
                         richText = new PIXI.Text(fighter1.fighter_name + ' win', K_O_);
                     }
-                    richText.x = 110 * x;
+                    richText.x = 160 * x;
                     richText.y = 60 * x;
                     richText.anchor.set(0.5);
                     renderer.stage.addChild(richText);
@@ -1086,7 +1086,7 @@ exports.Fight = function(x) {
         });
     }
     let BACKground = this.BACKground = async function(fighter1, fighter2, BACKground_char, fighter1_HELPER, fighter2_HELPER) {
-        let BACKground_vector = 110;
+        let BACKground_vector = 160;
         let timerr = 1 //25;
         let HELPER_vector = [2];
         HELPER_vector[0] = [];
@@ -1095,40 +1095,40 @@ exports.Fight = function(x) {
         renderer.ticker.add(async function() {
             if (fighter1_HELPER != null) {
                 for (let i = 0; i < fighter1_HELPER.length; i++) {
-                    HELPER_vector[0][i] = fighter1_HELPER[i].stand_vector() - 110 + BACKground_vector;
+                    HELPER_vector[0][i] = fighter1_HELPER[i].stand_vector() - 160 + BACKground_vector;
                 }
             }
             if (fighter2_HELPER != null) {
                 for (let i = 0; i < fighter2_HELPER.length; i++) {
-                    HELPER_vector[1][i] = fighter2_HELPER[i].stand_vector() - 110 + BACKground_vector;
+                    HELPER_vector[1][i] = fighter2_HELPER[i].stand_vector() - 160 + BACKground_vector;
                 }
             }
 
 
-            if (fighter1.stand_vector() != (110 + (fighter1.stand_vector() - fighter2.stand_vector()) / 2)) {
-                if (fighter1.stand_vector() >= 0 && fighter1.stand_vector() <= 220 && fighter2.stand_vector() >= 0 && fighter2.stand_vector() <= 220) {
-                    BACKground_vector += (fighter1.stand_vector() - (110 + (fighter1.stand_vector() - fighter2.stand_vector()) / 2));
+            if (fighter1.stand_vector() != (160 + (fighter1.stand_vector() - fighter2.stand_vector()) / 2)) {
+                if (fighter1.stand_vector() >= 0 && fighter1.stand_vector() <= 320 && fighter2.stand_vector() >= 0 && fighter2.stand_vector() <= 320) {
+                    BACKground_vector += (fighter1.stand_vector() - (160 + (fighter1.stand_vector() - fighter2.stand_vector()) / 2));
                 }
                 if (BACKground_vector < 0) {
                     BACKground_vector = 0;
-                } else if (BACKground_vector > 220) {
-                    BACKground_vector = 220;
+                } else if (BACKground_vector > 320) {
+                    BACKground_vector = 320;
                 }
-                if (BACKground_vector > 0 && BACKground_vector < 220) {
+                if (BACKground_vector > 0 && BACKground_vector < 320) {
                     if (fighter1_HELPER != null) {
                         for (let i = 0; i < fighter1_HELPER.length; i++) {
-                            fighter1_HELPER[i].stand_vector(HELPER_vector[0][i] + 110 - BACKground_vector);
+                            fighter1_HELPER[i].stand_vector(HELPER_vector[0][i] + 160 - BACKground_vector);
                         }
                     }
                     if (fighter2_HELPER != null) {
                         for (let i = 0; i < fighter2_HELPER.length; i++) {
-                            fighter2_HELPER[i].stand_vector(HELPER_vector[1][i] + 110 - BACKground_vector);
+                            fighter2_HELPER[i].stand_vector(HELPER_vector[1][i] + 160 - BACKground_vector);
                         }
                     }
-                    BACKground_char.stand_vector(220 - BACKground_vector)
+                    BACKground_char.stand_vector(320 - BACKground_vector)
                     let temp_fighter1_stand_vector = fighter1.stand_vector()
-                    fighter1.stand_vector(fighter1.stand_vector() - ((fighter1.stand_vector() - (110 + (fighter1.stand_vector() - fighter2.stand_vector()) / 2)) / timerr));
-                    fighter2.stand_vector(fighter2.stand_vector() - ((fighter2.stand_vector() - (110 + (fighter2.stand_vector() - temp_fighter1_stand_vector) / 2)) / timerr));
+                    fighter1.stand_vector(fighter1.stand_vector() - ((fighter1.stand_vector() - (160 + (fighter1.stand_vector() - fighter2.stand_vector()) / 2)) / timerr));
+                    fighter2.stand_vector(fighter2.stand_vector() - ((fighter2.stand_vector() - (160 + (fighter2.stand_vector() - temp_fighter1_stand_vector) / 2)) / timerr));
                 }
             }
 

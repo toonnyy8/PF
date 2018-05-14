@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <script async defer src="./include.Fight.js"></script>
+    <script async defer src="./include.fight.js"></script>
     <link href=".\Flat-UI-master\dist\css\vendor\bootstrap\css\bootstrap.min.css" rel="stylesheet">
     <link href=".\Flat-UI-master\dist\css\flat-ui.min.css" rel="stylesheet">
     <meta charset="utf-8">
@@ -47,10 +47,11 @@
                 background_chara = charas[select];
                 document.getElementById("choose").style = "display: none";
                 document.body.style = "background-color:#000000;"
-                if (document.body.offsetWidth / 220 < (document.body.scrollHeight - 10) / 120) {
-                    screen_scale = document.body.offsetWidth / 220;
+                document.body.style.overflow = 'hidden';
+                if (document.body.offsetWidth / 320 < (document.body.scrollHeight) / 180) {
+                    screen_scale = document.body.offsetWidth / 320;
                 } else {
-                    screen_scale = (document.body.scrollHeight - 10) / 120;
+                    screen_scale = (document.body.scrollHeight) / 180;
                 }
                 main.fight.main(screen_scale, player1_chara, player2_chara, background_chara);
             }
