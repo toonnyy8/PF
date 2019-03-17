@@ -1,0 +1,27 @@
+{
+    "name": "PF",
+    "version": "1.0.0",
+    "description": "PF",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "parcel index.html -p 8080 --open",
+        "build": "parcel build index.html --out-dir build --public-url=./",
+        "assetInit": "parcel build WebGL-Project-Asset/assetinit.js --out-dir source/asset/ --public-url=./",
+        "testBuild": "parcel build/index.html -p 8080"
+    },
+    "dependencies": {
+        "@babel/polyfill": "^7.2.5",
+        "gpu.js": "^1.2.0",
+        "keyboardjs": "^2.4.1",
+        "parcel": "^1.12.2",
+        "pixi.js": "^5.0.0-rc.2",
+        "screenfull": "^3.3.2",
+        "vue": "^2.6.9",
+        "vue-hot-reload-api": "^2.3.3"
+    },
+    "devDependencies": {
+        "@vue/component-compiler-utils": "^2.6.0",
+        "vue-template-compiler": "^2.6.9"
+    }
+}
